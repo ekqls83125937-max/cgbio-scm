@@ -2,8 +2,6 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="hosting-provider" content="Netlify">
-<meta name="netlify-deploy" content="https://netlify.new/?utm_campaign=ai-legible&utm_source=meta&utm_medium=referral&utm_id=05e45314-7eeb-44bf-ab32-ac060cfdb594">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>냉동창고 조직 현황</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -99,7 +97,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;mi
 .btn-release:hover{background:#dc2626}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:20px}
 .modal{background:#1e293b;border-radius:16px;padding:24px;max-width:380px;width:100%;border:1px solid #334155;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.modal-title{font-size:17px;font-weight:800;color:#f1f5f9;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-title{font-size:17px;font-weight:800;color:#f1f5f9;margin-bottom:16px}
 .mitem{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #0f172a}
 .mitem span{font-size:13px;color:#64748b}
 .mitem strong{font-size:14px;color:#f1f5f9;text-align:right;font-weight:700}
@@ -132,7 +130,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;mi
 .fchip.on{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
 .zone-input{width:100%;max-width:300px;padding:11px 16px;border-radius:10px;border:2px solid #334155;background:#0f172a;color:#f1f5f9;font-size:15px;font-family:monospace;outline:none;transition:border-color .2s;margin-top:8px;letter-spacing:2px}
 .zone-input:focus{border-color:#0ea5e9}
-.btn-intake-confirm{width:100%;padding:14px;border-radius:10px;border:none;background:#22c55e;color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-top:16px;transition:background .15s}
+.btn-intake-confirm{width:100%;padding:14px;border-radius:10px;border:none;background:#22c55e;color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-top:16px}
 .btn-intake-confirm:hover{background:#16a34a}
 .btn-intake-confirm:disabled{background:#14532d;color:#4ade8060;cursor:not-allowed}
 </style>
@@ -193,7 +191,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;mi
           </div>
         </div>
         <div id="modeMulti" style="display:none">
-          <textarea id="multiInput" placeholder="여러 개 붙여넣기 (줄바꿈 또는 쉼표로 구분)&#10;예: 261191&#10;261192&#10;261193" oninput="render()"
+          <textarea id="multiInput" placeholder="여러 개 붙여넣기&#10;예: 261191&#10;261192" oninput="render()"
             style="width:100%;max-width:420px;height:130px;padding:10px 14px;border-radius:10px;border:2px solid #334155;background:#1e293b;color:#f1f5f9;font-size:14px;font-family:monospace;letter-spacing:1px;outline:none;resize:vertical;line-height:1.9"></textarea>
           <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
             <button onclick="document.getElementById('multiInput').value='';render()" style="padding:6px 14px;border-radius:8px;border:1px solid #334155;background:transparent;color:#94a3b8;font-size:12px;cursor:pointer">초기화</button>
@@ -267,7 +265,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;mi
 const SHEET_ID="1I7PREqlH4XFSZDdIBM9mEvyE7nQRzU3SeDlomqkVox0";
 const GID="1504643023";
 const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
-const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbxZkioH8mw-Ee2ZQkAoeSsNkydkjMIR8M1kqCY-NQMmhuqjKmj3C2A-U2c9D66tM4AG/exec";
+const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwn8lZR9lDaxdFnBclDDFe7uSmDiVYmeiqfGIS6tjbnzeqkiCOo4YxHNqm6RqC3Fzwb/exec";
 
 let ALL=[],STOCK=[],NOSTORED=[];
 let selType=[],selFridge=[],selExp=[];
@@ -277,7 +275,7 @@ let filterOpen=false,openCard=null,releaseItem=null;
 const TODAY=new Date();
 function daysDiff(s){if(!s)return 9999;return Math.ceil((new Date(s)-TODAY)/86400000);}
 function expStatus(s){const d=daysDiff(s);if(d<0)return{label:"만료",color:"#ef4444"};if(d<=90)return{label:"90일이내",color:"#f59e0b"};return{label:"정상",color:"#22c55e"};}
-function todayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function todayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 
 function setTab(tab){
   document.getElementById('tabStatus').classList.toggle('active',tab==='status');
@@ -321,7 +319,7 @@ function buildFridges(){
     const rows=STOCK.filter(r=>r["냉동고번호"]===f);
     const exp=rows.filter(r=>daysDiff(r["유효기간"])<0).length;
     const c=exp>0?"#ef4444":rows.length>15?"#f59e0b":"#22c55e";
-    return `<div class="fcard${exp>0?" expired":""}" id="fc_${f}" onclick="toggleFridge('${f}')"><div class="fid">${f}</div><div class="fcnt" style="color:${c}">${rows.length}</div><div class="funit">건</div>${exp>0?`<div class="fexp">만료 ${exp}건</div>`:""}</div>`;
+    return`<div class="fcard${exp>0?" expired":""}" id="fc_${f}" onclick="toggleFridge('${f}')"><div class="fid">${f}</div><div class="fcnt" style="color:${c}">${rows.length}</div><div class="funit">건</div>${exp>0?`<div class="fexp">만료 ${exp}건</div>`:""}</div>`;
   }).join("");
 }
 
@@ -339,7 +337,7 @@ function buildChips(){
 function rc(id,opts,sel,color,fn){
   document.getElementById(id).innerHTML=opts.map(o=>{
     const on=o==="전체"?sel.length===0:sel.includes(o);
-    return `<button class="chip${on?" on":""}" style="${on?`color:#fff;background:${color};outline-color:${color}`:""}" onclick="${fn.name}('${o}')">${o}</button>`;
+    return`<button class="chip${on?" on":""}" style="${on?`color:#fff;background:${color};outline-color:${color}`:""}" onclick="${fn.name}('${o}')">${o}</button>`;
   }).join("");
 }
 
@@ -379,7 +377,7 @@ function fbCopy(text,cb){const ta=document.createElement("textarea");ta.value=te
 function openRelease(i,e){
   e.stopPropagation();
   const group=_list[i];const r=group[0];
-  releaseItem={donor:String(r["기증자번호"]||"").trim(),count:group.length,rows:group};
+  releaseItem={donor:String(r["기증자번호"]||"").trim(),count:group.length};
   const floor=String(r["냉동고 보관 구역"]||"").trim();
   const today=todayStr();
   document.getElementById("modalBody").innerHTML=`
@@ -394,6 +392,7 @@ function openRelease(i,e){
   document.getElementById("modalOverlay").style.display="flex";
 }
 function closeModal(){document.getElementById("modalOverlay").style.display="none";releaseItem=null;const btn=document.getElementById("btnConfirm");btn.disabled=false;btn.textContent="출고 확인";}
+
 async function confirmRelease(){
   if(!releaseItem)return;
   const donor=releaseItem.donor;
@@ -441,7 +440,7 @@ function render(){
     const r=group[0];const exp=expStatus(r["유효기간"]);const d=daysDiff(r["유효기간"]);
     const donor=String(r["기증자번호"]||"").trim()||String(r["조직번호"]||"").slice(0,6);
     const floor=String(r["냉동고 보관 구역"]||"").trim();const cnt=group.length;
-    return `<div class="rcard" style="border-left-color:${exp.color}" id="rc${i}" onclick="toggleCard(${i})">
+    return`<div class="rcard" style="border-left-color:${exp.color}" id="rc${i}" onclick="toggleCard(${i})">
       <div class="codebadge">${donor||"—"}</div>
       <div class="iinfo"><div class="iname">${r["품목명"]||"—"}</div><div class="isub">${r["품목구분"]||""} ${r["규격1"]?`· ${r["규격1"]}`:""}</div></div>
       ${r["냉동고번호"]?`<div class="locbadge"><div class="loclabel">냉동고</div><div class="locval">${r["냉동고번호"]}</div>${floor?`<div class="locfloor">${floor}구역</div>`:""}</div>`:""}
@@ -480,17 +479,17 @@ function onISearch(el){
 }
 function searchIntake(){
   const code=document.getElementById('iinput').value.trim();
-  if(!code||code.length<4){alert('기증자번호를 입력해주세요 (최소 4자리)');return;}
+  if(!code||code.length<4){alert('기증자번호를 입력해주세요');return;}
   const matched=NOSTORED.filter(r=>{const donor=String(r["기증자번호"]||"").trim();const org=String(r["조직번호"]||"").trim();return donor===code||org.startsWith(code);});
   iFoundGroups=groupByDonor(matched);
   const resultCard=document.getElementById('iResultCard');const fridgeCard=document.getElementById('iFridgeCard');
   if(iFoundGroups.length===0){
-    document.getElementById('iItems').innerHTML=`<div style="text-align:center;padding:16px;color:#475569"><div style="font-size:28px;margin-bottom:8px">🔍</div><div style="font-size:14px">냉동고 미배정 건이 없어요</div><div style="font-size:12px;margin-top:4px;color:#334155">이미 입고 완료됐거나 번호가 없어요</div></div>`;
+    document.getElementById('iItems').innerHTML=`<div style="text-align:center;padding:16px;color:#475569"><div style="font-size:28px;margin-bottom:8px">🔍</div><div>냉동고 미배정 건이 없어요</div></div>`;
     resultCard.style.display='';fridgeCard.style.display='none';return;
   }
   document.getElementById('iItems').innerHTML=iFoundGroups.map(group=>{
     const r=group[0];const donor=String(r["기증자번호"]||"").trim();const exp=expStatus(r["유효기간"]);
-    return `<div class="iresult-item"><div class="idonor-txt">${donor}</div><div class="iitem-name">${r["품목명"]||"—"}</div><div class="iitem-sub">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div><span class="itag" style="background:${exp.color}22;color:${exp.color}">${exp.label}</span><span class="itag" style="background:#0ea5e920;color:#0ea5e9">${group.length}건</span><span class="itag" style="background:#33415533;color:#64748b">유효기간 ${r["유효기간"]||"—"}</span></div>`;
+    return`<div class="iresult-item"><div class="idonor-txt">${donor}</div><div class="iitem-name">${r["품목명"]||"—"}</div><div class="iitem-sub">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div><span class="itag" style="background:${exp.color}22;color:${exp.color}">${exp.label}</span><span class="itag" style="background:#0ea5e920;color:#0ea5e9">${group.length}건</span><span class="itag" style="background:#33415533;color:#64748b">유효기간 ${r["유효기간"]||"—"}</span></div>`;
   }).join('');
   resultCard.style.display='';buildIFridgeChips();fridgeCard.style.display='';
 }
@@ -499,7 +498,7 @@ function buildIFridgeChips(){
   const fridges=[...new Set(STOCK.map(r=>r["냉동고번호"]).filter(Boolean))].sort();
   document.getElementById('iFridgeChips').innerHTML=fridges.map(f=>{
     const safe=f.replace(/[^a-zA-Z0-9]/g,'_');
-    return `<button class="fchip" id="ifchip_${safe}" onclick="selectIFridge('${f}')">${f}</button>`;
+    return`<button class="fchip" id="ifchip_${safe}" onclick="selectIFridge('${f}')">${f}</button>`;
   }).join('');
 }
 function selectIFridge(f){
@@ -515,7 +514,7 @@ async function confirmIntake(){
   const btn=document.getElementById('btnIntakeConfirm');
   btn.disabled=true;btn.textContent='처리 중...';
   try{
-    const url=`${APPS_SCRIPT_URL}?fridge=${encodeURIComponent(iSelectedFridge)}&donorCode=${encodeURIComponent(donor)}&zone=${encodeURIComponent(zone)}&t=${Date.now()}`;
+    const url=`${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&fridge=${encodeURIComponent(iSelectedFridge)}&zone=${encodeURIComponent(zone)}&t=${Date.now()}`;
     const res=await fetch(url,{redirect:'follow'});
     const data=await res.json();
     if(data.success){
