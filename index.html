@@ -19,7 +19,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;mi
 .tabn.active{color:#38bdf8;border-bottom-color:#38bdf8}
 .tabn:hover:not(.active){color:#94a3b8}
 .tabn .tbadge{background:#3b82f6;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:5px}
-.wrap{max-width:960px;margin:0 auto;padding:16px}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
 .center-box{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;text-align:center}
 .spin{font-size:36px;animation:spin 1.5s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -32,19 +32,40 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;mi
 .scard .val{font-size:22px;font-weight:800;line-height:1}
 .scard .lbl{font-size:11px;color:#64748b;margin-top:4px}
 .scard .sub{font-size:10px;color:#334155;margin-top:2px}
+
+/* ── 냉동고 섹션 ── */
 .fridge-sec{background:#1e293b;border-radius:12px;padding:14px 16px;margin-bottom:16px;border:1px solid #334155}
-.sec-title{font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-.fridge-grid{display:flex;flex-wrap:wrap;gap:8px}
-.fcard{background:#0f172a;border-radius:10px;padding:10px 14px;border:1.5px solid #334155;cursor:pointer;text-align:center;min-width:78px;transition:all .15s}
-.fcard:hover,.fcard.on{border-color:#0ea5e9;box-shadow:0 0 8px rgba(14,165,233,.2)}
-.fcard.expired{border-color:#ef444433}
-.fcard .fid{font-size:10px;color:#64748b;margin-bottom:4px;font-weight:600}
-.fcard .fcnt{font-size:20px;font-weight:800}
-.fcard .funit{font-size:9px;color:#475569}
-.fcard .fexp{font-size:9px;color:#ef4444;margin-top:2px;font-weight:700}
-.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.sec-title{font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.fridge-grid{display:flex;flex-wrap:wrap;gap:14px}
+
+/* ── 냉동고 카드 ── */
+.fvcard{background:#0c1829;border-radius:14px;border:2px solid #1e3a5f;width:162px;cursor:pointer;transition:all .2s;overflow:hidden;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.fvcard:hover,.fvcard.on{border-color:#0ea5e9;transform:translateY(-3px);box-shadow:0 10px 28px rgba(14,165,233,.3)}
+.fvcard.idle{opacity:.55;cursor:default;border-color:#1e293b;border-style:dashed}
+.fvcard.idle:hover{transform:none;box-shadow:0 4px 12px rgba(0,0,0,.4);border-color:#1e293b}
+.fvcard.fv-warn{border-color:#f59e0b66}
+.fvcard.fv-danger{border-color:#ef444466}
+.fv-hdr{background:#142238;padding:8px 12px;font-family:monospace;font-size:12px;font-weight:900;color:#38bdf8;letter-spacing:1px;text-align:center;border-bottom:1px solid #2d4a6a;display:flex;align-items:center;justify-content:center;gap:6px}
+.fv-tank-wrap{display:flex;gap:5px;padding:8px 8px 4px}
+.fv-tank{flex:1;height:110px;background:#04090f;border-radius:8px;border:1px solid #2d4a6a;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.fv-liquid{position:absolute;bottom:0;left:0;right:0;transition:height .7s cubic-bezier(.4,0,.2,1)}
+.fv-frost{position:absolute;top:0;left:0;right:0;height:12px;background:linear-gradient(to bottom,rgba(255,255,255,.06),transparent);pointer-events:none}
+.fv-pct{position:relative;z-index:2;font-size:22px;font-weight:900;text-shadow:0 2px 10px rgba(0,0,0,.95),0 0 20px rgba(0,0,0,.8)}
+.fv-hdl{display:flex;flex-direction:column;justify-content:center;gap:6px;padding:4px 0}
+.fv-hdl-b{width:5px;height:22px;background:#1e3a5f;border-radius:3px}
+.fv-info{padding:4px 10px 9px}
+.fvi-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.fvi-lbl{font-size:9px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.fvi-val{font-size:10px;font-weight:800}
+.fvi-bar{height:5px;background:#0a1020;border-radius:3px;overflow:hidden;margin-bottom:2px}
+.fvi-sub{font-size:8px;color:#2d4a6a;text-align:right;margin-bottom:1px}
+.fv-dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+.fv-dot{width:10px;height:10px;border-radius:50%;border:1px solid #1e293b}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;align-items:center}
 .ldot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:4px}
 .ltxt{font-size:10px;color:#475569}
+
+/* ── 검색 ── */
 .search-sec{margin-bottom:12px}
 .slabel{font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .search-wrap{position:relative;max-width:320px}
@@ -117,6 +138,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;mi
 .ditem{background:#0f172a;border-radius:8px;padding:10px 12px}
 .dlabel{font-size:10px;color:#475569;margin-bottom:3px}
 .dval{font-size:13px;color:#f1f5f9;font-weight:600;word-break:break-all}
+/* ── 입고 탭 ── */
 .icard{background:#1e293b;border-radius:12px;padding:18px 16px;margin-bottom:14px;border:1px solid #334155}
 .istep-label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:7px}
 .istep-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#0ea5e9;color:#fff;font-size:11px;font-weight:800;flex-shrink:0}
@@ -170,10 +192,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;mi
         <div class="sec-title">🧊 냉동고별 보관 현황</div>
         <div class="fridge-grid" id="fridgeGrid"></div>
         <div class="legend">
-          <span><span class="ldot" style="background:#22c55e"></span><span class="ltxt">여유</span></span>
-          <span><span class="ldot" style="background:#f59e0b"></span><span class="ltxt">보통</span></span>
-          <span><span class="ldot" style="background:#ef4444"></span><span class="ltxt">만료있음</span></span>
-          <span class="ltxt" style="margin-left:auto">클릭 시 필터</span>
+          <span><span class="ldot" style="background:#22c55e"></span><span class="ltxt">여유 (0~60%)</span></span>
+          <span><span class="ldot" style="background:#f59e0b"></span><span class="ltxt">보통 (60~80%)</span></span>
+          <span><span class="ldot" style="background:#f97316"></span><span class="ltxt">주의 (80~95%)</span></span>
+          <span><span class="ldot" style="background:#ef4444"></span><span class="ltxt">위험 (95%+)</span></span>
+          <span class="ltxt" style="margin-left:auto;font-size:9px">🧬 피부 Max 67,000 · 🦴 뼈 Max 10도너</span>
         </div>
       </div>
       <div class="search-sec">
@@ -266,6 +289,10 @@ const SHEET_ID="1I7PREqlH4XFSZDdIBM9mEvyE7nQRzU3SeDlomqkVox0";
 const GID="1504643023";
 const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwn8lZR9lDaxdFnBclDDFe7uSmDiVYmeiqfGIS6tjbnzeqkiCOo4YxHNqm6RqC3Fzwb/exec";
+const SKIN_MAX=67000;
+const BONE_MAX=10;
+// 유휴 냉동고 (데이터 없어도 표시)
+const IDLE_FRIDGES=['D-0815','미정-1','미정-2'];
 
 let ALL=[],STOCK=[],NOSTORED=[];
 let selType=[],selFridge=[],selExp=[];
@@ -276,6 +303,25 @@ const TODAY=new Date();
 function daysDiff(s){if(!s)return 9999;return Math.ceil((new Date(s)-TODAY)/86400000);}
 function expStatus(s){const d=daysDiff(s);if(d<0)return{label:"만료",color:"#ef4444"};if(d<=90)return{label:"90일이내",color:"#f59e0b"};return{label:"정상",color:"#22c55e"};}
 function todayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+
+// ── Ar 값 파싱 (피부)
+function parseArValue(row){
+  const s=(row["규격1"]||"")+(row["규격2"]||"");
+  const m=s.match(/Ar[:\s]*([\d,]+)/i);
+  return m?parseInt(m[1].replace(/,/g,"")):0;
+}
+// ── 뼈 아이템 판별
+function isBoneItem(row){
+  const t=[(row["품목명"]||""),(row["품목구분"]||"")].join(" ").toLowerCase();
+  return /뼈|bone|골/.test(t);
+}
+// ── 퍼센트에 따른 색상
+function pctColor(pct){
+  if(pct>=95)return"#ef4444";
+  if(pct>=80)return"#f97316";
+  if(pct>=60)return"#f59e0b";
+  return"#22c55e";
+}
 
 function setTab(tab){
   document.getElementById('tabStatus').classList.toggle('active',tab==='status');
@@ -290,8 +336,16 @@ function loadData(){
     download:true,header:true,skipEmptyLines:true,
     complete:function(res){
       ALL=res.data;
-      STOCK=ALL.filter(r=>!r["출고일자"]||r["출고일자"].trim()==="");
-      NOSTORED=ALL.filter(r=>(!r["출고일자"]||r["출고일자"].trim()==="")&&(!r["냉동고번호"]||r["냉동고번호"].trim()===""));
+      // 냉동고번호 있는 것만 STOCK
+      STOCK=ALL.filter(r=>
+        (!r["출고일자"]||r["출고일자"].trim()==="")&&
+        r["냉동고번호"]&&r["냉동고번호"].trim()!==""
+      );
+      // 냉동고번호 없는 것 = 입고 미배정
+      NOSTORED=ALL.filter(r=>
+        (!r["출고일자"]||r["출고일자"].trim()==="")&&
+        (!r["냉동고번호"]||r["냉동고번호"].trim()==="")
+      );
       document.getElementById("updated").textContent=new Date().toLocaleTimeString("ko-KR")+" 기준";
       const nb=document.getElementById('nostoreBadge');
       if(NOSTORED.length>0){nb.textContent=NOSTORED.length;nb.style.display='';}else nb.style.display='none';
@@ -314,12 +368,85 @@ function buildSummary(){
 }
 
 function buildFridges(){
-  const list=[...new Set(STOCK.map(r=>r["냉동고번호"]).filter(Boolean))].sort();
-  document.getElementById("fridgeGrid").innerHTML=list.map(f=>{
-    const rows=STOCK.filter(r=>r["냉동고번호"]===f);
-    const exp=rows.filter(r=>daysDiff(r["유효기간"])<0).length;
-    const c=exp>0?"#ef4444":rows.length>15?"#f59e0b":"#22c55e";
-    return`<div class="fcard${exp>0?" expired":""}" id="fc_${f}" onclick="toggleFridge('${f}')"><div class="fid">${f}</div><div class="fcnt" style="color:${c}">${rows.length}</div><div class="funit">건</div>${exp>0?`<div class="fexp">만료 ${exp}건</div>`:""}</div>`;
+  const activeIds=[...new Set(STOCK.map(r=>r["냉동고번호"]).filter(Boolean))].sort();
+  // 활성 냉동고 + 유휴 냉동고 합치기
+  const allIds=[...new Set([...activeIds,...IDLE_FRIDGES])];
+
+  document.getElementById("fridgeGrid").innerHTML=allIds.map(fid=>{
+    const rows=STOCK.filter(r=>r["냉동고번호"]===fid);
+    const isIdle=rows.length===0;
+
+    // 피부 계산 (Ar 합산)
+    const skinAr=rows.reduce((s,r)=>s+parseArValue(r),0);
+    const skinPct=Math.min(100,Math.round(skinAr/SKIN_MAX*100));
+
+    // 뼈 계산 (고유 기증자 수)
+    const boneRows=rows.filter(r=>isBoneItem(r));
+    const boneDonors=new Set(boneRows.map(r=>String(r["기증자번호"]||"").trim()).filter(Boolean)).size;
+    const bonePct=Math.min(100,Math.round(boneDonors/BONE_MAX*100));
+
+    // 메인 퍼센트 결정
+    const mainPct=skinAr>0?skinPct:(boneDonors>0?bonePct:0);
+    const fc=pctColor(mainPct);
+
+    const expiredCnt=rows.filter(r=>daysDiff(r["유효기간"])<0).length;
+
+    // 카드 클래스
+    let cardClass="fvcard";
+    if(isIdle)cardClass+=" idle";
+    else if(mainPct>=95)cardClass+=" fv-danger";
+    else if(mainPct>=80)cardClass+=" fv-warn";
+
+    // 헤더 라벨
+    const hdrExtra=isIdle
+      ?`<span style="font-size:9px;color:#475569;font-weight:400">${fid.startsWith('미정')?'번호미정':'준비중'}</span>`
+      :"";
+
+    // 뼈 도트
+    const boneDotHtml=Array.from({length:BONE_MAX},(_,i)=>
+      `<span class="fv-dot" style="background:${i<boneDonors?'#a78bfa':'#0f172a'}"></span>`
+    ).join('');
+
+    // 피부 바
+    const skinBarHtml=skinAr>0?`
+      <div class="fvi-row">
+        <span class="fvi-lbl">🧬 피부</span>
+        <span class="fvi-val" style="color:${fc}">${skinPct}%</span>
+      </div>
+      <div class="fvi-bar"><div style="width:${skinPct}%;height:100%;background:${fc};border-radius:3px;transition:width .4s"></div></div>
+      <div class="fvi-sub">${Math.round(skinAr/1000).toLocaleString()}K / 67K</div>
+    `:"";
+
+    // 뼈 표시
+    const boneHtml=boneDonors>0?`
+      <div class="fvi-row" style="margin-top:${skinAr>0?'5px':'0'}">
+        <span class="fvi-lbl">🦴 뼈</span>
+        <span class="fvi-val" style="color:#a78bfa">${boneDonors}/${BONE_MAX}</span>
+      </div>
+      <div class="fv-dots">${boneDotHtml}</div>
+    `:"";
+
+    return`<div class="${cardClass}" id="fc_${fid.replace(/[^a-zA-Z0-9]/g,'_')}" ${isIdle?"":`onclick="toggleFridge('${fid}')"`}>
+      <div class="fv-hdr">
+        <span>${fid}</span>${hdrExtra}
+      </div>
+      <div class="fv-tank-wrap">
+        <div class="fv-tank">
+          <div class="fv-liquid" style="height:${isIdle?0:mainPct}%;background:linear-gradient(to top,${fc}55,${fc}22);border-top:2px solid ${fc}88"></div>
+          <div class="fv-frost"></div>
+          <div class="fv-pct" style="color:${isIdle?'#334155':(mainPct>45?'#fff':fc)}">${isIdle?'—':mainPct+'%'}</div>
+        </div>
+        <div class="fv-hdl"><div class="fv-hdl-b"></div><div class="fv-hdl-b"></div></div>
+      </div>
+      <div class="fv-info">
+        ${isIdle?`<div style="font-size:10px;color:#334155;text-align:center;padding:4px 0">비어있음</div>`:
+          skinBarHtml+boneHtml+
+          (!skinAr&&!boneDonors?`<div style="font-size:10px;color:#334155;text-align:center;padding:2px 0">기타 ${rows.length}건</div>`:"")
+        }
+        ${expiredCnt>0?`<div style="font-size:9px;color:#ef4444;font-weight:700;margin-top:4px">⚠️ 만료 ${expiredCnt}건</div>`:""}
+        ${!isIdle?`<div style="font-size:9px;color:#2d4a6a;margin-top:3px;text-align:right">${rows.length}건 보관</div>`:""}
+      </div>
+    </div>`;
   }).join("");
 }
 
@@ -347,7 +474,12 @@ function toggleExp(v){tog(selExp,v);buildChips();render();}
 function toggleFridge(f){tog(selFridge,f);updateFCards();buildChips();render();}
 function setExp(v){selExp=[v];selType=[];selFridge=[];buildChips();updateFCards();render();}
 function tog(arr,v){if(v==="전체"){arr.length=0;return;}const i=arr.indexOf(v);i>=0?arr.splice(i,1):arr.push(v);}
-function updateFCards(){document.querySelectorAll(".fcard").forEach(el=>{el.classList.toggle("on",selFridge.includes(el.id.replace("fc_","")));});}
+function updateFCards(){
+  document.querySelectorAll(".fvcard").forEach(el=>{
+    const id=el.id.replace("fc_","").replace(/_/g,"-");
+    el.classList.toggle("on",selFridge.includes(id));
+  });
+}
 function toggleFilter(){filterOpen=!filterOpen;document.getElementById("fbody").classList.toggle("open",filterOpen);document.getElementById("farrow").textContent=filterOpen?"▲":"▼";}
 
 let searchMode='single';
@@ -415,7 +547,7 @@ function render(){
   const hasF=code||codes.length||selType.length||selFridge.length||selExp.length;
   if(!hasF){
     document.getElementById("rcnt").innerHTML="";document.getElementById("rlocs").textContent="";
-    document.getElementById("rlist").innerHTML=`<div class="hint-box"><div class="hico">🔍</div><div class="htxt">조직번호를 입력하거나<br>필터·냉동고를 선택하면 결과가 표시됩니다</div><div class="hsub">총 ${STOCK.length}건 보관 중</div></div>`;
+    document.getElementById("rlist").innerHTML=`<div class="hint-box"><div class="hico">🔍</div><div class="htxt">조직번호를 입력하거나<br>필터·냉동고를 선택하면 결과가 표시됩니다</div><div class="hsub">총 ${STOCK.length}건 보관 중 (냉동고 배정 완료)</div></div>`;
     _list=[];return;
   }
   let pool=STOCK;
