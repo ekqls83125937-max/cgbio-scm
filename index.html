@@ -306,14 +306,16 @@ function todayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getM
 
 // ── Ar 값 파싱 (피부)
 function parseArValue(row){
+  if(!isSkinItem(row)) return 0;
   const s=(row["규격1"]||"")+(row["규격2"]||"");
   const m=s.match(/Ar[:\s]*([\d,]+)/i);
   return m?parseInt(m[1].replace(/,/g,"")):0;
 }
-// ── 뼈 아이템 판별
+function isSkinItem(row){
+  return String(row["품목구분"]||"").trim()==="피부";
+}
 function isBoneItem(row){
-  const t=[(row["품목명"]||""),(row["품목구분"]||"")].join(" ").toLowerCase();
-  return /뼈|bone|골/.test(t);
+  return String(row["품목구분"]||"").trim()==="뼈";
 }
 // ── 퍼센트에 따른 색상
 function pctColor(pct){
