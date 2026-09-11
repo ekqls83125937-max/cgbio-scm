@@ -298,10 +298,10 @@ function todayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getM
 
 // ★ 피부/뼈 판별 — 품목구분 열 기준
 function isSkinItem(row){
-  return String(row["품목구분"]||"").includes("피부");
+  return String(row["구분"]||"").includes("피부");
 }
 function isBoneItem(row){
-  return String(row["품목구분"]||"").includes("뼈");
+  return String(row["구분"]||"").includes("뼈");
 }
 // ★ Ar 값 파싱 (피부만)
 function parseArValue(row){
