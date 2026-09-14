@@ -539,7 +539,11 @@ function render(){
   let pool=STOCK;
   if(codes.length>0){pool=STOCK.filter(r=>{const donor=String(r["기증자번호"]||"").trim();const org=String(r["조직번호"]||"").trim();return codes.some(c=>org.startsWith(c)||donor===c);});}
   let filtered=pool.filter(r=>{
-    if(code&&!String(r["조직번호"]||"").startsWith(code))return false;
+        if(code){
+      const org=String(r["조직번호"]||"").trim();
+      const donor=String(r["기증자번호"]||"").trim();
+      if(!org.startsWith(code)&&donor!==code)return false;
+    }
     if(selType.length&&!selType.includes(r["품목구분"]))return false;
     if(selFridge.length&&!selFridge.includes(r["냉동고번호"]))return false;
     if(selExp.length&&!selExp.includes(expStatus(r["유효기간"]).label))return false;
