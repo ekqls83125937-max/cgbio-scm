@@ -14,6 +14,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;mi
 .header-right{display:flex;gap:8px;align-items:center}
 .btn-refresh{background:transparent;border:1px solid #334155;color:#38bdf8;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
 .updated{font-size:11px;color:#475569}
+.mode-tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.mode-view{background:#33415533;color:#94a3b8}
+.mode-edit{background:#22c55e22;color:#22c55e}
 .tab-nav{background:#1e293b;border-bottom:2px solid #0f172a;display:flex;padding:0 20px;gap:4px}
 .tabn{padding:13px 22px;border:none;background:none;color:#475569;cursor:pointer;font-size:14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
 .tabn.active{color:#38bdf8;border-bottom-color:#38bdf8}
@@ -157,6 +160,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;mi
     <div class="header-sub">인체조직 냉동고 · 구글시트 실시간 연동</div>
   </div>
   <div class="header-right">
+    <span class="mode-tag" id="modeTag"></span>
     <span class="updated" id="updated"></span>
     <button class="btn-refresh" onclick="loadData()">↺ 새로고침</button>
   </div>
@@ -282,6 +286,8 @@ const SHEET_ID="1I7PREqlH4XFSZDdIBM9mEvyE7nQRzU3SeDlomqkVox0";
 const GID="1504643023";
 const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwn8lZR9lDaxdFnBclDDFe7uSmDiVYmeiqfGIS6tjbnzeqkiCOo4YxHNqm6RqC3Fzwb/exec";
+const PW=new URLSearchParams(window.location.search).get("pw")||"";
+const CAN_EDIT=PW!=="";
 const SKIN_MAX=67000;
 const BONE_MAX=10;
 const IDLE_FRIDGES=['D-0815','미정-1','미정-2'];
@@ -512,7 +518,7 @@ async function confirmRelease(){
   btn.disabled=true;btn.textContent="처리 중...";
   const today=todayStr();
   try{
-    const url = `${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
+    const url=`${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
     const res=await fetch(url,{redirect:'follow'});
     const data=await res.json();
     if(data.success){closeModal();alert(`✅ 출고 완료!\n기증자번호: ${donor}\n출고일자: ${today}\n비고: 이다빈\n처리: ${data.updated}건`);setTimeout(loadData,1500);}
@@ -560,7 +566,7 @@ function render(){
       <div class="expbadge"><span class="exptag" style="background:${exp.color}22;color:${exp.color}">${exp.label}</span><br><span class="expdays">${d<0?Math.abs(d)+"일 초과":d+"일 남음"}</span><br><span class="expdate">${r["유효기간"]||""}</span></div>
       <div class="card-actions" onclick="event.stopPropagation()">
         <button class="btn-copy" onclick="copyCode('${donor}',event)">📋</button>
-        <button class="btn-release" onclick="openRelease(${i},event)">출고</button>
+        ${CAN_EDIT?`<button class="btn-release" onclick="openRelease(${i},event)">출고</button>`:""}
       </div>
     </div>`;
   }).join("");
@@ -603,7 +609,9 @@ function searchIntake(){
     const r=group[0];const donor=String(r["기증자번호"]||"").trim();const exp=expStatus(r["유효기간"]);
     return`<div class="iresult-item"><div class="idonor-txt">${donor}</div><div class="iitem-name">${r["품목명"]||"—"}</div><div class="iitem-sub">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div><span class="itag" style="background:${exp.color}22;color:${exp.color}">${exp.label}</span><span class="itag" style="background:#0ea5e920;color:#0ea5e9">${group.length}건</span><span class="itag" style="background:#33415533;color:#64748b">유효기간 ${r["유효기간"]||"—"}</span></div>`;
   }).join('');
-  resultCard.style.display='';buildIFridgeChips();fridgeCard.style.display='';
+  resultCard.style.display='';
+  if(CAN_EDIT){buildIFridgeChips();fridgeCard.style.display='';}
+  else fridgeCard.style.display='none';
 }
 function buildIFridgeChips(){
   iSelectedFridge='';document.getElementById('btnIntakeConfirm').disabled=true;
@@ -626,7 +634,7 @@ async function confirmIntake(){
   const btn=document.getElementById('btnIntakeConfirm');
   btn.disabled=true;btn.textContent='처리 중...';
   try{
-    const url = `${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
+    const url=`${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&fridge=${encodeURIComponent(iSelectedFridge)}&zone=${encodeURIComponent(zone)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
     const res=await fetch(url,{redirect:'follow'});
     const data=await res.json();
     if(data.success){
@@ -639,8 +647,15 @@ async function confirmIntake(){
   }catch(err){alert('❌ 연결 실패\n'+err.message);btn.disabled=false;btn.textContent='✅ 입고 확인';}
 }
 
+function initMode(){
+  const tag=document.getElementById('modeTag');
+  if(CAN_EDIT){tag.textContent='✏️ 편집 모드';tag.className='mode-tag mode-edit';}
+  else{tag.textContent='👁 보기 전용';tag.className='mode-tag mode-view';}
+}
+
 function show(id){document.getElementById(id).style.display='';}
 function hide(id){document.getElementById(id).style.display='none';}
+initMode();
 loadData();
 </script>
 </body>
