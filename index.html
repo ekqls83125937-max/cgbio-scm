@@ -512,7 +512,7 @@ async function confirmRelease(){
   btn.disabled=true;btn.textContent="처리 중...";
   const today=todayStr();
   try{
-    const url=`${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}`;
+    const url = `${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
     const res=await fetch(url,{redirect:'follow'});
     const data=await res.json();
     if(data.success){closeModal();alert(`✅ 출고 완료!\n기증자번호: ${donor}\n출고일자: ${today}\n비고: 이다빈\n처리: ${data.updated}건`);setTimeout(loadData,1500);}
@@ -626,7 +626,7 @@ async function confirmIntake(){
   const btn=document.getElementById('btnIntakeConfirm');
   btn.disabled=true;btn.textContent='처리 중...';
   try{
-    const url=`${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&fridge=${encodeURIComponent(iSelectedFridge)}&zone=${encodeURIComponent(zone)}&t=${Date.now()}`;
+    const url = `${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
     const res=await fetch(url,{redirect:'follow'});
     const data=await res.json();
     if(data.success){
