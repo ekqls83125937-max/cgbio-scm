@@ -597,7 +597,7 @@ function searchIntake(){
     rcd.style.display='';fcd.style.display='none';return;}
   document.getElementById('iItems').innerHTML=iFoundGroups.map(g=>{
     const r=g[0],donor=String(r["기증자번호"]||"").trim(),ex=expStatus(r["유효기간"]);
-    const tag=isBoneItem(r)?'<span class="itag" style="background:#faece7;color:#993c1d">뼈</span>':isSkinItem(r)?'<span class="itag" style="background:#fbeaf0;color:#993556">피부</span>':'';
+   const tag=isBoneItem(r)?'<span class="itag" style="background:#e6f1fb;color:#185fa5">뼈</span>':isSkinItem(r)?'<span class="itag" style="background:#faeeda;color:#854f0b">피부</span>':'';
     return`<div class="iresult"><div class="idonor">${donor}</div><div class="iname2">${r["품목명"]||"—"}</div>
       <div class="isub2">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div>${tag}
       <span class="itag" style="background:${ex.color}22;color:${ex.color}">${ex.label}</span>
