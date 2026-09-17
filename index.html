@@ -42,15 +42,24 @@ body{font-family:'Segoe UI','Malgun Gothic',Arial,sans-serif;background:#f4f4f1;
 .mc .v{font-size:23px;font-weight:600;line-height:1.25}
 .mc .s{font-size:11px;color:#9a9a94;margin-top:2px}
 .ic{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* ── 냉동고 요약 3칸 ── */
+.fridge-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.fs-col{border-radius:10px;padding:13px 14px;text-align:center}
+.fs-lbl{font-size:13px;font-weight:700;margin-bottom:5px}
+.fs-pct{font-size:32px;font-weight:700;line-height:1;margin-bottom:4px}
+.fs-sub{font-size:12px;margin-top:3px}
+.fs-bar{height:7px;border-radius:4px;margin-top:9px;overflow:hidden}
+.fs-bar-fill{height:100%;border-radius:4px}
+/* ── 냉동고 행 ── */
 .frow{display:flex;align-items:center;gap:11px;padding:10px 6px;border-bottom:1px solid #eeeee9;font-size:13px;cursor:pointer;border-radius:6px}
 .frow:hover{background:#f7f7f4}
 .frow.idle{cursor:default;color:#b4b2a9}
 .frow.idle:hover{background:none}
-.fid{width:62px;font-family:monospace;font-weight:700;font-size:13px}
-.bar{flex:1;height:8px;background:#efefeb;border-radius:4px;overflow:hidden;display:flex}
+.fid{width:62px;font-family:monospace;font-weight:700;font-size:14px}
+.bar{flex:1;height:10px;background:#efefeb;border-radius:5px;overflow:hidden;display:flex}
 .bar div{height:100%}
-.pct{width:42px;text-align:right;font-weight:700}
-.cnt{width:56px;text-align:right;color:#9a9a94;font-size:12px}
+.pct{width:42px;text-align:right;font-weight:700;font-size:14px}
+.cnt{width:56px;text-align:right;color:#9a9a94;font-size:13px}
 .arw{width:14px;color:#b4b2a9;font-size:11px}
 .pill{font-size:11px;padding:2px 9px;border-radius:10px;display:inline-block;text-align:center;font-weight:600}
 .p-danger{background:#fceaea;color:#a32d2d}.p-warn{background:#faeeda;color:#854f0b}
@@ -111,7 +120,7 @@ textarea.multi:focus{border-color:#185fa5}
 .modal-footer{display:flex;gap:8px;margin-top:18px}
 .btn-cancel{flex:1;padding:11px;border-radius:10px;border:1px solid #d6d6d0;background:#fff;color:#6b6b66;cursor:pointer;font-size:14px;font-weight:600}
 .btn-confirm{flex:1;padding:11px;border-radius:10px;border:none;background:#e24b4a;color:#fff;cursor:pointer;font-size:14px;font-weight:700}
-.btn-confirm:disabled{background:#f0999 5;background:#f09595;cursor:not-allowed}
+.btn-confirm:disabled{background:#f09595;cursor:not-allowed}
 .modal-note{font-size:12px;color:#8a8a84;margin-top:10px;text-align:center;line-height:1.6}
 .detail{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #185fa5;border-radius:16px 16px 0 0;padding:18px 20px;z-index:100;max-height:55vh;overflow-y:auto;display:none;box-shadow:0 -6px 24px rgba(0,0,0,.12)}
 .detail.open{display:block}
@@ -211,10 +220,12 @@ textarea.multi:focus{border-color:#185fa5}
 
       <div class="card">
         <div class="sec">냉동고별 가동률 <span style="font-weight:400;color:#9a9a94">· 클릭하면 구역별 보관 내역</span></div>
+        <div id="fridgeSummary"></div>
         <div id="fridgeList"></div>
-        <div style="display:flex;gap:14px;margin-top:10px;font-size:11px;color:#9a9a94;flex-wrap:wrap;align-items:center">
+        <div style="display:flex;gap:14px;margin-top:10px;font-size:12px;color:#9a9a94;flex-wrap:wrap;align-items:center">
           <span><span class="dot" style="background:#378ADD"></span>뼈</span>
-          <span><span class="dot" style="background:#EF9F27"></span>피부</span>
+          <span><span class="dot" style="background:#EF9F27"></span>피부 2ND PASS</span>
+          <span><span class="dot" style="background:#1D9E75"></span>피부 Skin-Full</span>
           <span style="margin-left:auto">피부 Max 67,000 · 뼈 Max 10도너</span>
         </div>
       </div>
@@ -293,7 +304,7 @@ const PW=new URLSearchParams(window.location.search).get("pw")||"";
 const CAN_EDIT=PW!=="";
 const SKIN_MAX=67000, BONE_MAX=10;
 const FRIDGES=["D-0801","D-0805","D-0806","D-0808","D-0809","D-0810","D-0812","D-0813","D-0814","D-0815","D-0817"];
-const BONE_C="#378ADD", SKIN_C="#EF9F27";
+const BONE_C="#378ADD", PASS_C="#EF9F27", FULL_C="#1D9E75";
 
 let ALL=[],STOCK=[],NOSTORED=[];
 let selType=[],selFridge=[],selExp=[];
@@ -307,6 +318,8 @@ function expStatus(s){const d=daysDiff(s);if(d<0)return{label:"만료",color:"#e
 function todayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function isSkinItem(r){return String(r["구분"]||"").includes("피부");}
 function isBoneItem(r){return String(r["구분"]||"").includes("뼈");}
+function is2ndPass(r){const n=String(r["품목명"]||"").toUpperCase();return isSkinItem(r)&&(n.includes("2ND")||n.includes("PASS"));}
+function isSkinFull(r){return isSkinItem(r)&&!is2ndPass(r);}
 function parseArValue(r){if(!isSkinItem(r))return 0;const s=(r["규격1"]||"")+(r["규격2"]||"");const m=s.match(/Ar[:\s]*([\d,]+)/i);return m?parseInt(m[1].replace(/,/g,"")):0;}
 function pctColor(p){if(p>=95)return"#e24b4a";if(p>=80)return"#ef9f27";if(p>=60)return"#BA7517";return"#639922";}
 function pctPill(p){if(p>=95)return'<span class="pill p-danger">포화</span>';if(p>=80)return'<span class="pill p-warn">주의</span>';return'<span class="pill p-ok">여유</span>';}
@@ -334,15 +347,19 @@ function loadData(){
 
 function fridgeStat(fid){
   const rows=STOCK.filter(r=>String(r["냉동고번호"]||"").trim()===fid);
-  const skinAr=rows.reduce((s,r)=>s+parseArValue(r),0);
+  const passAr=rows.filter(is2ndPass).reduce((s,r)=>s+parseArValue(r),0);
+  const fullAr=rows.filter(isSkinFull).reduce((s,r)=>s+parseArValue(r),0);
+  const skinAr=passAr+fullAr;
+  const passPct=Math.min(100,Math.round(passAr/SKIN_MAX*100));
+  const fullPct=Math.min(100,Math.round(fullAr/SKIN_MAX*100));
   const skinPct=Math.min(100,Math.round(skinAr/SKIN_MAX*100));
   const boneDonors=new Set(rows.filter(isBoneItem).map(r=>String(r["기증자번호"]||"").trim()).filter(Boolean)).size;
   const bonePct=Math.min(100,Math.round(boneDonors/BONE_MAX*100));
-  const mainPct=skinAr>0?skinPct:(boneDonors>0?bonePct:0);
-  return{rows,skinAr,skinPct,boneDonors,bonePct,mainPct,expired:rows.filter(r=>daysDiff(r["유효기간"])<0).length};
+  const mainPct=Math.min(100,bonePct+passPct+fullPct);
+  return{rows,skinAr,skinPct,passPct,fullPct,passAr,fullAr,boneDonors,bonePct,mainPct,expired:rows.filter(r=>daysDiff(r["유효기간"])<0).length};
 }
 
-function buildAll(){buildAlert();buildMetrics();buildFridgeList();buildExpDist();buildHistory();buildChips();render();renderOut();}
+function buildAll(){buildAlert();buildMetrics();buildFridgeSection();buildExpDist();buildHistory();buildChips();render();renderOut();}
 
 function buildAlert(){
   const full=FRIDGES.filter(f=>fridgeStat(f).mainPct>=95).length;
@@ -363,28 +380,69 @@ function buildMetrics(){
   const full=FRIDGES.filter(f=>fridgeStat(f).mainPct>=95).length;
   const avg=used.length?Math.round(used.reduce((s,f)=>s+fridgeStat(f).mainPct,0)/used.length):0;
   const boneSvg=`<svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="${BONE_C}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20c-2 0-3.5 1.5-3.5 3.5S4 27 6 27c.8 0 1.5-.3 2-.7.5.5 1.2.7 2 .7 2 0 3.5-1.5 3.5-3.5 0-1.3-.7-2.4-1.8-3L20.7 12c.6 1.1 1.7 1.8 3 1.8 2 0 3.5-1.5 3.5-3.5S25.7 6.8 23.7 6.8c-.8 0-1.5.3-2 .7-.5-.5-1.2-.7-2-.7-2 0-3.5 1.5-3.5 3.5 0 1.3.7 2.4 1.8 3L9 22.3c-.6-1.1-1.7-1.8-3-1.8z"/></svg>`;
-  const skinSvg=`<svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="${SKIN_C}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="24" height="20" rx="3"/><path d="M4 12h24M4 18h24"/><circle cx="10" cy="22" r="1"/><circle cx="16" cy="22" r="1"/><circle cx="22" cy="22" r="1"/></svg>`;
+  const skinSvg=`<svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="${PASS_C}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="24" height="20" rx="3"/><path d="M4 12h24M4 18h24"/><circle cx="10" cy="22" r="1"/><circle cx="16" cy="22" r="1"/><circle cx="22" cy="22" r="1"/></svg>`;
   document.getElementById("metrics").innerHTML=`
   <div class="mc"><div class="ic" style="background:#f4f4f1"><span style="font-size:22px">📦</span></div>
     <div><div class="l">현재 보관 재고</div><div class="v">${STOCK.length}<span style="font-size:13px;color:#9a9a94">건</span></div><div class="s">냉동고 ${used.length}대 사용 중</div></div></div>
-  <div class="mc"><div class="ic" style="background:#faece7">${boneSvg}</div>
+  <div class="mc"><div class="ic" style="background:#e6f1fb">${boneSvg}</div>
     <div><div class="l">뼈 보관</div><div class="v">${bone.length}<span style="font-size:13px;color:#9a9a94">건</span></div><div class="s">기증자 ${boneDonors}명</div></div></div>
-  <div class="mc"><div class="ic" style="background:#fbeaf0">${skinSvg}</div>
+  <div class="mc"><div class="ic" style="background:#faeeda">${skinSvg}</div>
     <div><div class="l">피부 보관</div><div class="v">${skin.length}<span style="font-size:13px;color:#9a9a94">건</span></div><div class="s">Ar 합계 ${Math.round(skinAr/1000)}K</div></div></div>
   <div class="mc"><div class="ic" style="background:#fceaea"><span style="font-size:22px">🧊</span></div>
     <div><div class="l">평균 가동률</div><div class="v" style="color:${pctColor(avg)}">${avg}%</div><div class="s">${FRIDGES.length}대 중 ${full}대 포화</div></div></div>`;
 }
 
-function buildFridgeList(){
+function buildFridgeSection(){
+  // ── 전체 보관율 3칸 요약 ──
+  const totalFridges=FRIDGES.length;
+  const allPassAr=STOCK.filter(is2ndPass).reduce((s,r)=>s+parseArValue(r),0);
+  const allFullAr=STOCK.filter(isSkinFull).reduce((s,r)=>s+parseArValue(r),0);
+  const allBoneDonors=new Set(STOCK.filter(isBoneItem).map(r=>String(r["기증자번호"]||"").trim()).filter(Boolean)).size;
+  const passPctAll=Math.min(100,Math.round(allPassAr/(SKIN_MAX*totalFridges)*100));
+  const fullPctAll=Math.min(100,Math.round(allFullAr/(SKIN_MAX*totalFridges)*100));
+  const bonePctAll=Math.min(100,Math.round(allBoneDonors/(BONE_MAX*totalFridges)*100));
+
+  document.getElementById("fridgeSummary").innerHTML=`
+  <div class="fridge-summary" style="margin-bottom:14px">
+    <div class="fs-col" style="background:#e6f1fb">
+      <div class="fs-lbl" style="color:#185fa5">🦴 뼈 (파란색)</div>
+      <div class="fs-pct" style="color:#185fa5">${bonePctAll}%</div>
+      <div class="fs-sub" style="color:#5a8ab5">${allBoneDonors}명 보관 중</div>
+      <div class="fs-bar" style="background:#b5d4f4">
+        <div class="fs-bar-fill" style="width:${bonePctAll}%;background:#185fa5"></div>
+      </div>
+    </div>
+    <div class="fs-col" style="background:#faeeda">
+      <div class="fs-lbl" style="color:#854f0b">🧬 피부 2ND PASS (노란색)</div>
+      <div class="fs-pct" style="color:#854f0b">${passPctAll}%</div>
+      <div class="fs-sub" style="color:#a07040">${Math.round(allPassAr/1000)}K 보관 중</div>
+      <div class="fs-bar" style="background:#fac775">
+        <div class="fs-bar-fill" style="width:${passPctAll}%;background:#EF9F27"></div>
+      </div>
+    </div>
+    <div class="fs-col" style="background:#e1f5ee">
+      <div class="fs-lbl" style="color:#0f6e56">🧬 피부 Skin-Full (민트)</div>
+      <div class="fs-pct" style="color:#0f6e56">${fullPctAll}%</div>
+      <div class="fs-sub" style="color:#3a8870">${Math.round(allFullAr/1000)}K 보관 중</div>
+      <div class="fs-bar" style="background:#9fe1cb">
+        <div class="fs-bar-fill" style="width:${fullPctAll}%;background:#1D9E75"></div>
+      </div>
+    </div>
+  </div>`;
+
+  // ── 냉동고별 행 ──
   document.getElementById("fridgeList").innerHTML=FRIDGES.map(fid=>{
     const st=fridgeStat(fid);
     const idle=st.rows.length===0;
     const safe=fid.replace(/[^a-zA-Z0-9]/g,'_');
     if(idle)return`<div class="frow idle"><span class="fid">${fid}</span><div class="bar"></div><span class="pct">—</span><span class="cnt">0건</span><span class="pill p-idle">비어있음</span><span class="arw"></span></div>`;
-    const bw=st.boneDonors>0?Math.round(st.bonePct*(st.skinAr>0?0.5:1)):0;
-    const sw=st.skinAr>0?Math.round(st.skinPct*(st.boneDonors>0?0.5:1)):0;
-    return`<div class="frow" onclick="toggleFridgeDetail('${fid}')"><span class="fid">${fid}</span>
-      <div class="bar">${sw?`<div style="width:${sw}%;background:${SKIN_C}"></div>`:""}${bw?`<div style="width:${bw}%;background:${BONE_C}"></div>`:""}</div>
+    return`<div class="frow" onclick="toggleFridgeDetail('${fid}')">
+      <span class="fid">${fid}</span>
+      <div class="bar">
+        ${st.bonePct?`<div style="width:${st.bonePct}%;background:${BONE_C}"></div>`:""}
+        ${st.passPct?`<div style="width:${st.passPct}%;background:${PASS_C}"></div>`:""}
+        ${st.fullPct?`<div style="width:${st.fullPct}%;background:${FULL_C}"></div>`:""}
+      </div>
       <span class="pct" style="color:${pctColor(st.mainPct)}">${st.mainPct}%</span>
       <span class="cnt">${st.rows.length}건</span>${pctPill(st.mainPct)}
       ${st.expired>0?`<span class="pill p-danger">만료 ${st.expired}</span>`:""}
@@ -404,14 +462,14 @@ function toggleFridgeDetail(fid){
   st.rows.forEach(r=>{const z=String(r["냉동고 보관 구역"]||"").trim()||"구역 미지정";if(!zones.has(z))zones.set(z,[]);zones.get(z).push(r);});
   const sorted=[...zones.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ko',{numeric:true}));
   box.innerHTML=`<div style="font-size:11px;color:#8a8a84;margin-bottom:9px">
-      피부 ${st.skinPct}% (${Math.round(st.skinAr/1000)}K/67K) · 뼈 ${st.boneDonors}/${BONE_MAX}도너 · 총 ${st.rows.length}건</div>`+
+    2ND PASS ${st.passPct}% (${Math.round(st.passAr/1000)}K) · Skin-Full ${st.fullPct}% (${Math.round(st.fullAr/1000)}K) · 뼈 ${st.boneDonors}/${BONE_MAX}도너 · 총 ${st.rows.length}건</div>`+
     sorted.map(([z,rows])=>{
       const donors=new Map();
       rows.forEach(r=>{const d=String(r["기증자번호"]||"").trim()||"—";if(!donors.has(d))donors.set(d,[]);donors.get(d).push(r);});
       return`<div class="zone"><div class="zone-h"><span>${z}</span><span style="color:#9a9a94;font-weight:400">${rows.length}건</span></div>
       ${[...donors.entries()].map(([d,rs])=>{
-        const r=rs[0], ex=expStatus(r["유효기간"]);
-        const tag=isBoneItem(r)?'<span class="pill p-bone">뼈</span>':isSkinItem(r)?'<span class="pill p-skin">피부</span>':'';
+        const r=rs[0],ex=expStatus(r["유효기간"]);
+        const tag=isBoneItem(r)?`<span class="pill p-bone">뼈</span>`:is2ndPass(r)?`<span class="pill" style="background:#faeeda;color:#854f0b">2ND PASS</span>`:`<span class="pill" style="background:#e1f5ee;color:#0f6e56">Skin-Full</span>`;
         return`<div class="zrow"><span class="zd">${d}</span>${tag}<span class="zn">${r["품목명"]||"—"}</span>
           <span class="zc">${rs.length}건</span><span class="pill" style="background:${ex.color}22;color:${ex.color}">${ex.label}</span></div>`;
       }).join("")}</div>`;
@@ -447,7 +505,7 @@ function buildHistory(){
   if(!list.length){document.getElementById("history").innerHTML=`<div style="color:#b4b2a9;font-size:13px;padding:8px 0">출고 이력이 없습니다</div>`;return;}
   document.getElementById("history").innerHTML=list.map(h=>{
     const r=h.rows[0];
-    const tag=isBoneItem(r)?'<span class="pill p-bone">뼈</span>':isSkinItem(r)?'<span class="pill p-skin">피부</span>':'';
+    const tag=isBoneItem(r)?'<span class="pill p-bone">뼈</span>':is2ndPass(r)?'<span class="pill" style="background:#faeeda;color:#854f0b">2ND PASS</span>':'<span class="pill" style="background:#e1f5ee;color:#0f6e56">Skin-Full</span>';
     return`<div class="hrow"><span class="pill p-out">출고</span><span class="hcode">${h.donor||"—"}</span>${tag}
       <span class="hmid">${r["품목명"]||"—"} · ${h.rows.length}건</span><span class="hdate">${h.date} ${h.who}</span></div>`;
   }).join("");
@@ -483,7 +541,7 @@ function cardHtml(group,i,showRelease,prefix){
   const r=group[0],ex=expStatus(r["유효기간"]),d=daysDiff(r["유효기간"]);
   const donor=String(r["기증자번호"]||"").trim()||String(r["조직번호"]||"").slice(0,6);
   const floor=String(r["냉동고 보관 구역"]||"").trim();
-  const tag=isBoneItem(r)?'<span class="pill p-bone">뼈</span>':isSkinItem(r)?'<span class="pill p-skin">피부</span>':'';
+  const tag=isBoneItem(r)?'<span class="pill p-bone">뼈</span>':is2ndPass(r)?'<span class="pill" style="background:#faeeda;color:#854f0b">2ND PASS</span>':'<span class="pill" style="background:#e1f5ee;color:#0f6e56">Skin-Full</span>';
   return`<div class="rcard" style="border-left-color:${ex.color}" id="${prefix}${i}" onclick="toggleCard(${i},'${prefix}')">
     <div class="codebadge">${donor||"—"}</div>
     <div class="iinfo"><div class="iname">${tag} ${r["품목명"]||"—"}</div><div class="isub">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div></div>
@@ -597,7 +655,7 @@ function searchIntake(){
     rcd.style.display='';fcd.style.display='none';return;}
   document.getElementById('iItems').innerHTML=iFoundGroups.map(g=>{
     const r=g[0],donor=String(r["기증자번호"]||"").trim(),ex=expStatus(r["유효기간"]);
-   const tag=isBoneItem(r)?'<span class="itag" style="background:#e6f1fb;color:#185fa5">뼈</span>':isSkinItem(r)?'<span class="itag" style="background:#faeeda;color:#854f0b">피부</span>':'';
+    const tag=isBoneItem(r)?'<span class="itag" style="background:#e6f1fb;color:#185fa5">뼈</span>':is2ndPass(r)?'<span class="itag" style="background:#faeeda;color:#854f0b">2ND PASS</span>':'<span class="itag" style="background:#e1f5ee;color:#0f6e56">Skin-Full</span>';
     return`<div class="iresult"><div class="idonor">${donor}</div><div class="iname2">${r["품목명"]||"—"}</div>
       <div class="isub2">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div>${tag}
       <span class="itag" style="background:${ex.color}22;color:${ex.color}">${ex.label}</span>
