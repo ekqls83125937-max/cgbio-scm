@@ -398,6 +398,9 @@ function buildFridgeSection(){
   const allPassAr=STOCK.filter(is2ndPass).reduce((s,r)=>s+parseArValue(r),0);
   const allFullAr=STOCK.filter(isSkinFull).reduce((s,r)=>s+parseArValue(r),0);
   const allBoneDonors=new Set(STOCK.filter(isBoneItem).map(r=>String(r["기증자번호"]||"").trim()).filter(Boolean)).size;
+const allPassCnt=STOCK.filter(is2ndPass).length;
+const allFullCnt=STOCK.filter(isSkinFull).length;
+const allBoneCnt=STOCK.filter(isBoneItem).length;
   const passPctAll=Math.min(100,Math.round(allPassAr/(SKIN_MAX*totalFridges)*100));
   const fullPctAll=Math.min(100,Math.round(allFullAr/(SKIN_MAX*totalFridges)*100));
   const bonePctAll=Math.min(100,Math.round(allBoneDonors/(BONE_MAX*totalFridges)*100));
@@ -407,7 +410,7 @@ function buildFridgeSection(){
     <div class="fs-col" style="background:#e6f1fb">
       <div class="fs-lbl" style="color:#185fa5">🦴 뼈 (파란색)</div>
       <div class="fs-pct" style="color:#185fa5">${bonePctAll}%</div>
-      <div class="fs-sub" style="color:#5a8ab5">${allBoneDonors}명 보관 중</div>
+      <div class="fs-sub" style="color:#5a8ab5">${allBoneCnt}조직자 보관 중</div>
       <div class="fs-bar" style="background:#b5d4f4">
         <div class="fs-bar-fill" style="width:${bonePctAll}%;background:#185fa5"></div>
       </div>
@@ -415,7 +418,7 @@ function buildFridgeSection(){
     <div class="fs-col" style="background:#faeeda">
       <div class="fs-lbl" style="color:#854f0b">🧬 피부 2ND PASS (노란색)</div>
       <div class="fs-pct" style="color:#854f0b">${passPctAll}%</div>
-      <div class="fs-sub" style="color:#a07040">${Math.round(allPassAr/1000)}K 보관 중</div>
+      <div class="fs-sub" style="color:#a07040">${allPassCnt}조직자 보관 중</div>
       <div class="fs-bar" style="background:#fac775">
         <div class="fs-bar-fill" style="width:${passPctAll}%;background:#EF9F27"></div>
       </div>
@@ -423,7 +426,7 @@ function buildFridgeSection(){
     <div class="fs-col" style="background:#e1f5ee">
       <div class="fs-lbl" style="color:#0f6e56">🧬 피부 Skin-Full (민트)</div>
       <div class="fs-pct" style="color:#0f6e56">${fullPctAll}%</div>
-      <div class="fs-sub" style="color:#3a8870">${Math.round(allFullAr/1000)}K 보관 중</div>
+      <div class="fs-sub" style="color:#3a8870">${allFullCnt}조직자 보관 중</div>
       <div class="fs-bar" style="background:#9fe1cb">
         <div class="fs-bar-fill" style="width:${fullPctAll}%;background:#1D9E75"></div>
       </div>
