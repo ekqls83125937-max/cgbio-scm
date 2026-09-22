@@ -591,6 +591,9 @@ groups.sort((a,b)=>{
   const fa=String(a[0]["냉동고번호"]||"").trim();
   const fb=String(b[0]["냉동고번호"]||"").trim();
   if(fa!==fb)return fa.localeCompare(fb,'ko',{numeric:true});
+const za=String(a[0]["냉동고 보관 구역"]||"").trim();
+const zb=String(b[0]["냉동고 보관 구역"]||"").trim();
+if(za!==zb)return za.localeCompare(zb,'ko',{numeric:true});
   const pa=["만료","90일이내","정상"].indexOf(expStatus(a[0]["유효기간"]).label);
   const pb=["만료","90일이내","정상"].indexOf(expStatus(b[0]["유효기간"]).label);
   return pa-pb;
