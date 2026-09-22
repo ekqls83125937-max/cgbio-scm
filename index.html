@@ -586,7 +586,16 @@ function renderOut(){
   if(!codes.length){box.innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>출고 대상이 표시됩니다</div>`;_outList=[];return;}
   const filtered=STOCK.filter(r=>{const donor=String(r["기증자번호"]||"").trim(),org=String(r["조직번호"]||"").trim();
     return codes.some(c=>org.startsWith(c)||donor===c);});
-  const groups=groupByDonor(filtered);_outList=groups;
+  const groups=groupByDonor(filtered);
+groups.sort((a,b)=>{
+  const fa=String(a[0]["냉동고번호"]||"").trim();
+  const fb=String(b[0]["냉동고번호"]||"").trim();
+  if(fa!==fb)return fa.localeCompare(fb,'ko',{numeric:true});
+  const pa=["만료","90일이내","정상"].indexOf(expStatus(a[0]["유효기간"]).label);
+  const pb=["만료","90일이내","정상"].indexOf(expStatus(b[0]["유효기간"]).label);
+  return pa-pb;
+});
+_outList=groups;
   if(!groups.length){box.innerHTML=`<div class="card"><div class="empty">보관 중인 조직이 없습니다</div></div>`;return;}
   box.innerHTML=`<div class="card"><div class="sec"><strong style="color:#185fa5;font-size:14px">${groups.length}건</strong> 검색됨
     ${CAN_EDIT?"":' <span class="pill p-idle">보기 전용 · 출고 불가</span>'}</div>
