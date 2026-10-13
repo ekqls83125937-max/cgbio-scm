@@ -143,15 +143,14 @@ textarea.multi:focus{border-color:#185fa5}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .fchip{padding:8px 14px;border-radius:20px;border:1px solid #d6d6d0;cursor:pointer;font-size:13px;font-weight:700;background:#fff;color:#6b6b66}
 .fchip.on{background:#185fa5;color:#fff;border-color:#185fa5}
-.fchip:disabled{opacity:.4;cursor:not-allowed}
-.zone-input{width:100%;max-width:300px;padding:11px 16px;border-radius:10px;border:1px solid #d6d6d0;background:#fff;font-size:15px;font-family:monospace;outline:none;margin-top:8px;color:#1f1f1e}
-.zone-input:focus{border-color:#185fa5}
+.zone-chip{padding:8px 18px;border-radius:20px;border:1px solid #d6d6d0;cursor:pointer;font-size:14px;font-weight:700;background:#fff;color:#6b6b66}
+.zone-chip.on{background:#7F77DD;color:#fff;border-color:#7F77DD}
+.intake-zone-chip{padding:8px 18px;border-radius:20px;border:1px solid #d6d6d0;cursor:pointer;font-size:14px;font-weight:700;background:#fff;color:#6b6b66}
+.intake-zone-chip.on{background:#639922;color:#fff;border-color:#639922}
 .btn-intake{width:100%;padding:13px;border-radius:10px;border:none;background:#639922;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px}
 .btn-intake:disabled{background:#c0dd97;cursor:not-allowed}
 .btn-move{width:100%;padding:13px;border-radius:10px;border:none;background:#7F77DD;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px}
 .btn-move:disabled{background:#c5c2ee;cursor:not-allowed}
-.zone-chip{padding:8px 18px;border-radius:20px;border:1px solid #d6d6d0;cursor:pointer;font-size:14px;font-weight:700;background:#fff;color:#6b6b66}
-.zone-chip.on{background:#7F77DD;color:#fff;border-color:#7F77DD}
 .filter-sec{background:#fff;border:1px solid #e3e3de;border-radius:12px;margin-bottom:14px;overflow:hidden}
 .ftoggle{width:100%;padding:11px 16px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;font-size:13px;color:#1f1f1e}
 .fbody{padding:12px 16px 16px;border-top:1px solid #eeeee9;display:none}
@@ -257,13 +256,13 @@ textarea.multi:focus{border-color:#185fa5}
       <div class="icard" id="iFridgeCard" style="display:none">
         <div class="istep"><span class="istep-num">3</span> 냉동고 선택</div>
         <div class="chips" id="iFridgeChips"></div>
-                <div class="istep" style="margin-top:18px"><span class="istep-num">4</span> 보관 구역 선택 <span style="font-weight:400;font-size:10px">(선택)</span></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-          <button class="zone-chip" onclick="selectIntakeZone(0,this)">선택 안함</button>
-          <button class="zone-chip" onclick="selectIntakeZone(1,this)">1구역</button>
-          <button class="zone-chip" onclick="selectIntakeZone(2,this)">2구역</button>
-          <button class="zone-chip" onclick="selectIntakeZone(3,this)">3구역</button>
-          <button class="zone-chip" onclick="selectIntakeZone(4,this)">4구역</button>
+        <div class="istep" style="margin-top:18px"><span class="istep-num">4</span> 보관 구역 선택 <span style="font-weight:400;font-size:10px">(선택)</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="intakeZoneChips">
+          <button class="intake-zone-chip on" onclick="selectIntakeZone(0,this)">선택 안함</button>
+          <button class="intake-zone-chip" onclick="selectIntakeZone(1,this)">1구역</button>
+          <button class="intake-zone-chip" onclick="selectIntakeZone(2,this)">2구역</button>
+          <button class="intake-zone-chip" onclick="selectIntakeZone(3,this)">3구역</button>
+          <button class="intake-zone-chip" onclick="selectIntakeZone(4,this)">4구역</button>
         </div>
         <input type="hidden" id="iZone" value="">
         <button class="btn-intake" id="btnIntakeConfirm" onclick="confirmIntake()" disabled>입고 확인</button>
@@ -297,9 +296,9 @@ textarea.multi:focus{border-color:#185fa5}
       <div class="icard" id="moveTargetCard" style="display:none">
         <div class="istep"><span class="istep-num">2</span> 이동할 냉동고 선택</div>
         <div class="chips" id="moveFridgeChips"></div>
-                <div class="istep" style="margin-top:18px"><span class="istep-num">3</span> 이동할 구역 선택 <span style="font-weight:400;font-size:10px">(선택)</span></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-          <button class="zone-chip" onclick="selectMoveZone(0,this)">선택 안함</button>
+        <div class="istep" style="margin-top:18px"><span class="istep-num">3</span> 이동할 구역 선택 <span style="font-weight:400;font-size:10px">(선택)</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="moveZoneChips">
+          <button class="zone-chip on" onclick="selectMoveZone(0,this)">선택 안함</button>
           <button class="zone-chip" onclick="selectMoveZone(1,this)">1구역</button>
           <button class="zone-chip" onclick="selectMoveZone(2,this)">2구역</button>
           <button class="zone-chip" onclick="selectMoveZone(3,this)">3구역</button>
@@ -337,9 +336,9 @@ const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbweW2NkNpUIz2cU0cFPhYu3jKf4z2yNTPTqxvxr82iCc5scwpwARLleO3_MKT1dygfI/exec";
 const PW=new URLSearchParams(window.location.search).get("pw")||"";
 const CAN_EDIT=PW!=="";
-const SKIN_MAX=67000, BONE_MAX=10;
+const SKIN_MAX=67000,BONE_MAX=10;
 const FRIDGES=["D-0801","D-0805","D-0806","D-0808","D-0809","D-0810","D-0812","D-0813","D-0814","D-0815","D-0817","D-0818"];
-const BONE_C="#378ADD", PASS_C="#EF9F27", FULL_C="#1D9E75";
+const BONE_C="#378ADD",PASS_C="#EF9F27",FULL_C="#1D9E75";
 
 let ALL=[],STOCK=[],NOSTORED=[];
 let selType=[],selFridge=[],selExp=[];
@@ -442,7 +441,6 @@ function buildFridgeSection(){
   const passPctAll=Math.min(100,Math.round(allPassAr/(SKIN_MAX*totalFridges)*100));
   const fullPctAll=Math.min(100,Math.round(allFullAr/(SKIN_MAX*totalFridges)*100));
   const bonePctAll=Math.min(100,Math.round(allBoneDonors/(BONE_MAX*totalFridges)*100));
-
   document.getElementById("fridgeSummary").innerHTML=`
   <div class="fridge-summary">
     <div class="fs-col" style="background:#e6f1fb">
@@ -464,7 +462,6 @@ function buildFridgeSection(){
       <div class="fs-bar" style="background:#9fe1cb"><div class="fs-bar-fill" style="width:${fullPctAll}%;background:#1D9E75"></div></div>
     </div>
   </div>`;
-
   document.getElementById("fridgeList").innerHTML=FRIDGES.map(fid=>{
     const st=fridgeStat(fid);
     const idle=st.rows.length===0;
@@ -630,7 +627,6 @@ function renderOut(){
     <div class="rlist">${groups.map((g,i)=>cardHtml(g,i,true,"oc")).join("")}</div></div>`;
 }
 
-// ── 이동 탭 ──
 function renderMove(){
   const codes=getMultiCodes("moveInput");
   document.getElementById("moveCount").textContent=codes.length?`${codes.length}개 코드 입력됨`:"";
@@ -667,6 +663,18 @@ function renderMove(){
   else targetCard.style.display='none';
 }
 
+function selectIntakeZone(n,el){
+  document.querySelectorAll('#intakeZoneChips .intake-zone-chip').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('iZone').value=n===0?'':n+'구역';
+}
+
+function selectMoveZone(n,el){
+  document.querySelectorAll('#moveZoneChips .zone-chip').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('moveZone').value=n===0?'':n+'구역';
+}
+
 function buildMoveFridgeChips(){
   moveSelectedFridge='';
   document.getElementById('btnMoveConfirm').disabled=true;
@@ -677,15 +685,7 @@ function buildMoveFridgeChips(){
   }).join('');
 }
 
-function selectIntakeZone(n,el){
-  document.querySelectorAll('#iFridgeCard .zone-chip').forEach(e=>e.classList.remove('on'));
-  el.classList.add('on');
-  document.getElementById('iZone').value=n===0?'':n+'구역';
-}
-  document.querySelectorAll('.zone-chip').forEach(e=>e.classList.remove('on'));
-  el.classList.add('on');
-  document.getElementById('moveZone').value=n===0?'':n+'구역';
-}
+function selectMoveFridge(f){
   moveSelectedFridge=f;
   document.querySelectorAll('#moveFridgeChips .fchip').forEach(e=>e.classList.remove('on'));
   document.getElementById('mfchip_'+f.replace(/[^a-zA-Z0-9]/g,'_'))?.classList.add('on');
@@ -716,6 +716,9 @@ async function confirmMove(){
     document.getElementById('moveResult').innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>이동 대상이 표시됩니다</div>`;
     document.getElementById('moveTargetCard').style.display='none';
     _moveList=[];moveSelectedFridge='';
+    // 구역 칩 초기화
+    document.querySelectorAll('#moveZoneChips .zone-chip').forEach(e=>e.classList.remove('on'));
+    document.querySelector('#moveZoneChips .zone-chip').classList.add('on');
     setTimeout(loadData,1500);
   }else{
     alert(`이동 완료: ${successCount}건\n실패: ${failCount}건`);
@@ -797,6 +800,10 @@ function searchIntake(){
 }
 function buildIFridgeChips(){
   iSelectedFridge='';document.getElementById('btnIntakeConfirm').disabled=true;
+  // 구역 칩 초기화
+  document.querySelectorAll('#intakeZoneChips .intake-zone-chip').forEach(e=>e.classList.remove('on'));
+  document.querySelector('#intakeZoneChips .intake-zone-chip').classList.add('on');
+  document.getElementById('iZone').value='';
   document.getElementById('iFridgeChips').innerHTML=FRIDGES.map(f=>{
     const st=fridgeStat(f),safe=f.replace(/[^a-zA-Z0-9]/g,'_');
     const sub=st.rows.length?`${st.mainPct}%`:'비어있음';
@@ -805,7 +812,7 @@ function buildIFridgeChips(){
 }
 function selectIFridge(f){
   iSelectedFridge=f;
-  document.querySelectorAll('.fchip').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('#iFridgeChips .fchip').forEach(e=>e.classList.remove('on'));
   document.getElementById('ifchip_'+f.replace(/[^a-zA-Z0-9]/g,'_'))?.classList.add('on');
   document.getElementById('btnIntakeConfirm').disabled=false;
 }
