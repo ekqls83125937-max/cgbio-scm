@@ -150,6 +150,8 @@ textarea.multi:focus{border-color:#185fa5}
 .btn-intake:disabled{background:#c0dd97;cursor:not-allowed}
 .btn-move{width:100%;padding:13px;border-radius:10px;border:none;background:#7F77DD;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px}
 .btn-move:disabled{background:#c5c2ee;cursor:not-allowed}
+.zone-chip{padding:8px 18px;border-radius:20px;border:1px solid #d6d6d0;cursor:pointer;font-size:14px;font-weight:700;background:#fff;color:#6b6b66}
+.zone-chip.on{background:#7F77DD;color:#fff;border-color:#7F77DD}
 .filter-sec{background:#fff;border:1px solid #e3e3de;border-radius:12px;margin-bottom:14px;overflow:hidden}
 .ftoggle{width:100%;padding:11px 16px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;font-size:13px;color:#1f1f1e}
 .fbody{padding:12px 16px 16px;border-top:1px solid #eeeee9;display:none}
@@ -255,8 +257,15 @@ textarea.multi:focus{border-color:#185fa5}
       <div class="icard" id="iFridgeCard" style="display:none">
         <div class="istep"><span class="istep-num">3</span> 냉동고 선택</div>
         <div class="chips" id="iFridgeChips"></div>
-        <div class="istep" style="margin-top:18px"><span class="istep-num">4</span> 보관 구역 입력 <span style="font-weight:400;font-size:10px">(선택)</span></div>
-        <input class="zone-input" id="iZone" type="text" placeholder="예: 2구역, A-3">
+                <div class="istep" style="margin-top:18px"><span class="istep-num">4</span> 보관 구역 선택 <span style="font-weight:400;font-size:10px">(선택)</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+          <button class="zone-chip" onclick="selectIntakeZone(0,this)">선택 안함</button>
+          <button class="zone-chip" onclick="selectIntakeZone(1,this)">1구역</button>
+          <button class="zone-chip" onclick="selectIntakeZone(2,this)">2구역</button>
+          <button class="zone-chip" onclick="selectIntakeZone(3,this)">3구역</button>
+          <button class="zone-chip" onclick="selectIntakeZone(4,this)">4구역</button>
+        </div>
+        <input type="hidden" id="iZone" value="">
         <button class="btn-intake" id="btnIntakeConfirm" onclick="confirmIntake()" disabled>입고 확인</button>
       </div>
     </div>
@@ -288,8 +297,15 @@ textarea.multi:focus{border-color:#185fa5}
       <div class="icard" id="moveTargetCard" style="display:none">
         <div class="istep"><span class="istep-num">2</span> 이동할 냉동고 선택</div>
         <div class="chips" id="moveFridgeChips"></div>
-        <div class="istep" style="margin-top:18px"><span class="istep-num">3</span> 이동할 구역 입력 <span style="font-weight:400;font-size:10px">(선택)</span></div>
-        <input class="zone-input" id="moveZone" type="text" placeholder="예: 2구역, A-3">
+                <div class="istep" style="margin-top:18px"><span class="istep-num">3</span> 이동할 구역 선택 <span style="font-weight:400;font-size:10px">(선택)</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+          <button class="zone-chip" onclick="selectMoveZone(0,this)">선택 안함</button>
+          <button class="zone-chip" onclick="selectMoveZone(1,this)">1구역</button>
+          <button class="zone-chip" onclick="selectMoveZone(2,this)">2구역</button>
+          <button class="zone-chip" onclick="selectMoveZone(3,this)">3구역</button>
+          <button class="zone-chip" onclick="selectMoveZone(4,this)">4구역</button>
+        </div>
+        <input type="hidden" id="moveZone" value="">
         <button class="btn-move" id="btnMoveConfirm" onclick="confirmMove()" disabled>이동 확인</button>
       </div>
     </div>
@@ -661,7 +677,15 @@ function buildMoveFridgeChips(){
   }).join('');
 }
 
-function selectMoveFridge(f){
+function selectIntakeZone(n,el){
+  document.querySelectorAll('#iFridgeCard .zone-chip').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('iZone').value=n===0?'':n+'구역';
+}
+  document.querySelectorAll('.zone-chip').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('moveZone').value=n===0?'':n+'구역';
+}
   moveSelectedFridge=f;
   document.querySelectorAll('#moveFridgeChips .fchip').forEach(e=>e.classList.remove('on'));
   document.getElementById('mfchip_'+f.replace(/[^a-zA-Z0-9]/g,'_'))?.classList.add('on');
