@@ -67,8 +67,7 @@ body{font-family:'Segoe UI','Malgun Gothic',Arial,sans-serif;background:#f4f4f1;
 .p-move{background:#ede9fb;color:#534AB7}
 .fdet{display:none;background:#f9f9f7;border:1px solid #eeeee9;border-radius:8px;padding:11px 13px;margin:0 0 8px}
 .fdet.open{display:block}
-.zone{margin-bottom:11px}
-.zone:last-child{margin-bottom:0}
+.zone{margin-bottom:11px}.zone:last-child{margin-bottom:0}
 .zone-h{font-size:12px;font-weight:700;color:#185fa5;margin-bottom:5px;display:flex;justify-content:space-between}
 .zrow{display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 0;border-bottom:1px dashed #e7e7e2}
 .zrow:last-child{border-bottom:none}
@@ -85,6 +84,7 @@ textarea.multi:focus{border-color:#185fa5}
 .rlist{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .rcard{background:#fff;border:1px solid #e3e3de;border-left-width:4px;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:11px;flex-wrap:wrap;cursor:pointer}
 .rcard:hover{background:#fafaf8}
+.rcard.checked{background:#f0f7ff;border-color:#185fa5}
 .codebadge{background:#f4f4f1;border-radius:8px;padding:8px 13px;font-family:monospace;font-size:16px;font-weight:700;color:#185fa5;letter-spacing:1px}
 .iinfo{flex:1;min-width:130px}
 .iname{font-size:14px;font-weight:600}
@@ -100,6 +100,13 @@ textarea.multi:focus{border-color:#185fa5}
 .btn-copy.copied{border-color:#639922;color:#3b6d11}
 .btn-release{padding:7px 14px;border-radius:8px;border:none;background:#e24b4a;color:#fff;cursor:pointer;font-size:13px;font-weight:700}
 .btn-release:hover{background:#a32d2d}
+/* 일괄처리 */
+.bulk-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border:1px solid #e3e3de;border-radius:10px;margin-bottom:10px;flex-wrap:wrap}
+.bulk-check{width:18px;height:18px;accent-color:#185fa5;cursor:pointer;flex-shrink:0}
+.out-check{width:18px;height:18px;accent-color:#e24b4a;cursor:pointer;flex-shrink:0}
+.btn-bulk-release{padding:9px 20px;border-radius:8px;border:none;background:#e24b4a;color:#fff;cursor:pointer;font-size:14px;font-weight:700}
+.btn-bulk-release:disabled{background:#f09595;cursor:not-allowed}
+.bulk-cnt{font-size:13px;color:#6b6b66;flex:1}
 .hint-box{text-align:center;padding:40px 20px;border:1px dashed #d6d6d0;border-radius:12px;color:#9a9a94;font-size:14px;line-height:1.9}
 .empty{text-align:center;padding:40px;color:#b4b2a9}
 .hrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #eeeee9;font-size:13px}
@@ -111,7 +118,7 @@ textarea.multi:focus{border-color:#185fa5}
 .dist-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
 .dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:6px}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
-.modal{background:#fff;border-radius:14px;padding:22px;max-width:380px;width:100%;border:1px solid #e3e3de}
+.modal{background:#fff;border-radius:14px;padding:22px;max-width:420px;width:100%;border:1px solid #e3e3de;max-height:80vh;overflow-y:auto}
 .modal-title{font-size:16px;font-weight:700;margin-bottom:14px}
 .mitem{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0ec}
 .mitem span{font-size:13px;color:#8a8a84}
@@ -168,10 +175,7 @@ textarea.multi:focus{border-color:#185fa5}
     <img src="logo.png" class="logo-img" alt="CGBIO" onerror="this.style.display='none';document.querySelector('.logo-txt').style.display='block'">
     <span class="logo-txt">CGBIO</span>
     <div class="hdiv"></div>
-    <div>
-      <h1>냉동창고 조직 현황</h1>
-      <div class="header-sub">SCM 물류팀 · 인체조직 원재료</div>
-    </div>
+    <div><h1>냉동창고 조직 현황</h1><div class="header-sub">SCM 물류팀 · 인체조직 원재료</div></div>
   </div>
   <div class="header-right">
     <span class="mode-tag" id="modeTag"></span>
@@ -312,9 +316,10 @@ textarea.multi:focus{border-color:#185fa5}
   </div>
 </div>
 
+<!-- 출고 모달 -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-title">출고 처리</div>
+    <div class="modal-title" id="modalTitle">출고 처리</div>
     <div id="modalBody"></div>
     <div class="modal-note" id="modalNote"></div>
     <div class="modal-footer">
@@ -343,9 +348,10 @@ const BONE_C="#378ADD",PASS_C="#EF9F27",FULL_C="#1D9E75";
 let ALL=[],STOCK=[],NOSTORED=[];
 let selType=[],selFridge=[],selExp=[];
 const EXP_OPTS=["만료","90일이내","정상"];
-let filterOpen=false,openCard=null,releaseItem=null,openFridge=null;
+let filterOpen=false,openCard=null,releaseItem=null,bulkRelease=null,openFridge=null;
 let _list=[],_outList=[],_moveList=[];
 let moveSelectedFridge='';
+let checkedSet=new Set();
 
 const TODAY=new Date();
 function daysDiff(s){if(!s)return 9999;return Math.ceil((new Date(s)-TODAY)/86400000);}
@@ -390,11 +396,10 @@ function fridgeStat(fid){
   const skinAr=passAr+fullAr;
   const passPct=Math.min(100,Math.round(passAr/SKIN_MAX*100));
   const fullPct=Math.min(100,Math.round(fullAr/SKIN_MAX*100));
-  const skinPct=Math.min(100,Math.round(skinAr/SKIN_MAX*100));
   const boneDonors=new Set(rows.filter(isBoneItem).map(r=>String(r["기증자번호"]||"").trim()).filter(Boolean)).size;
   const bonePct=Math.min(100,Math.round(boneDonors/BONE_MAX*100));
   const mainPct=Math.min(100,bonePct+passPct+fullPct);
-  return{rows,skinAr,skinPct,passPct,fullPct,passAr,fullAr,boneDonors,bonePct,mainPct,expired:rows.filter(r=>daysDiff(r["유효기간"])<0).length};
+  return{rows,skinAr,passPct,fullPct,passAr,fullAr,boneDonors,bonePct,mainPct,expired:rows.filter(r=>daysDiff(r["유효기간"])<0).length};
 }
 
 function buildAll(){buildAlert();buildMetrics();buildFridgeSection();buildExpDist();buildHistory();buildChips();render();renderOut();}
@@ -566,23 +571,6 @@ function onIS(el,id){el.value=el.value.replace(/\D/g,"").slice(0,6);const c=docu
 function getMultiCodes(id){return[...new Set(document.getElementById(id).value.split(/[\n,\s]+/).map(s=>s.replace(/\D/g,"").trim()).filter(s=>s.length>=4))];}
 function groupByDonor(rows){const m=new Map();rows.forEach(r=>{const d=String(r["기증자번호"]||"").trim();if(!m.has(d))m.set(d,[]);m.get(d).push(r);});return[...m.values()];}
 
-function cardHtml(group,i,showRelease,prefix){
-  const r=group[0],ex=expStatus(r["유효기간"]),d=daysDiff(r["유효기간"]);
-  const donor=String(r["기증자번호"]||"").trim()||String(r["조직번호"]||"").slice(0,6);
-  const floor=String(r["냉동고 보관 구역"]||"").trim();
-  return`<div class="rcard" style="border-left-color:${ex.color}" id="${prefix}${i}" onclick="toggleCard(${i},'${prefix}')">
-    <div class="codebadge">${donor||"—"}</div>
-    <div class="iinfo"><div class="iname">${typeTag(r)} ${r["품목명"]||"—"}</div><div class="isub">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div></div>
-    ${r["냉동고번호"]?`<div class="locbadge"><div class="loclabel">냉동고</div><div class="locval">${r["냉동고번호"]}</div>${floor?`<div class="locfloor">${floor}</div>`:""}</div>`:""}
-    ${group.length>1?`<div class="locbadge"><div class="loclabel">수량</div><div class="locval" style="color:#534AB7">${group.length}건</div></div>`:""}
-    <div class="expbadge"><span class="pill" style="background:${ex.color}22;color:${ex.color}">${ex.label}</span>
-      <span class="expdays">${d<0?Math.abs(d)+"일 초과":d+"일 남음"}</span><span class="expdate">${r["유효기간"]||""}</span></div>
-    <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
-      <button class="btn-copy" onclick="copyCode('${donor}',event)">📋</button>
-      ${showRelease&&CAN_EDIT?`<button class="btn-release" onclick="openRelease(${i},event)">출고</button>`:""}
-    </div></div>`;
-}
-
 function render(){
   const code=document.getElementById("sinput").value.trim();
   const hasF=code||selType.length||selFridge.length||selExp.length;
@@ -599,13 +587,16 @@ function render(){
   if(!groups.length){box.innerHTML=`<div class="card"><div class="empty">조건에 맞는 조직이 없습니다</div></div>`;return;}
   const locs=[...new Set(filtered.map(r=>r["냉동고번호"]).filter(Boolean))].sort();
   box.innerHTML=`<div class="card"><div class="sec" style="display:flex;justify-content:space-between">
-    <span><strong style="color:#185fa5;font-size:14px">${groups.length}건</strong> 검색됨</span><span style="font-weight:400;color:#9a9a94">${locs.join(" · ")}</span></div>
+    <span><strong style="color:#185fa5;font-size:14px">${groups.length}건</strong> 검색됨</span>
+    <span style="font-weight:400;color:#9a9a94">${locs.join(" · ")}</span></div>
     <div class="rlist">${groups.map((g,i)=>cardHtml(g,i,false,"rc")).join("")}</div></div>`;
 }
 
+// ── 출고 탭 (일괄처리) ──
 function renderOut(){
   const codes=getMultiCodes("multiInput");
   document.getElementById("multiCount").textContent=codes.length?`${codes.length}개 코드 입력됨`:"";
+  checkedSet=new Set();
   const box=document.getElementById("outResult");
   if(!codes.length){box.innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>출고 대상이 표시됩니다</div>`;_outList=[];return;}
   const filtered=STOCK.filter(r=>{const donor=String(r["기증자번호"]||"").trim(),org=String(r["조직번호"]||"").trim();
@@ -622,108 +613,103 @@ function renderOut(){
   });
   _outList=groups;
   if(!groups.length){box.innerHTML=`<div class="card"><div class="empty">보관 중인 조직이 없습니다</div></div>`;return;}
-  box.innerHTML=`<div class="card"><div class="sec"><strong style="color:#185fa5;font-size:14px">${groups.length}건</strong> 검색됨
-    ${CAN_EDIT?"":' <span class="pill p-idle">보기 전용 · 출고 불가</span>'}</div>
-    <div class="rlist">${groups.map((g,i)=>cardHtml(g,i,true,"oc")).join("")}</div></div>`;
+
+  const editHtml=CAN_EDIT?`
+    <div class="bulk-bar">
+      <input type="checkbox" class="bulk-check" id="chkAll" onchange="toggleAll(this)">
+      <label for="chkAll" style="font-size:13px;font-weight:600;cursor:pointer;color:#185fa5">전체 선택</label>
+      <span class="bulk-cnt" id="bulkCnt">0건 선택됨</span>
+      <button class="btn-bulk-release" id="btnBulkRelease" onclick="openBulkRelease()" disabled>선택 출고 (0건)</button>
+    </div>`:'';
+
+  box.innerHTML=`<div class="card">
+    <div class="sec"><strong style="color:#185fa5;font-size:14px">${groups.length}건</strong> 검색됨
+      ${CAN_EDIT?"":' <span class="pill p-idle">보기 전용 · 출고 불가</span>'}</div>
+    ${editHtml}
+    <div class="rlist">${groups.map((g,i)=>outCardHtml(g,i)).join("")}</div></div>`;
 }
 
-function renderMove(){
-  const codes=getMultiCodes("moveInput");
-  document.getElementById("moveCount").textContent=codes.length?`${codes.length}개 코드 입력됨`:"";
-  const box=document.getElementById("moveResult");
-  const targetCard=document.getElementById("moveTargetCard");
-  if(!codes.length){
-    box.innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>이동 대상이 표시됩니다</div>`;
-    targetCard.style.display='none';_moveList=[];return;
-  }
-  const filtered=STOCK.filter(r=>{
-    const donor=String(r["기증자번호"]||"").trim(),org=String(r["조직번호"]||"").trim();
-    return codes.some(c=>org.startsWith(c)||donor===c);
+function outCardHtml(group,i){
+  const r=group[0],ex=expStatus(r["유효기간"]),d=daysDiff(r["유효기간"]);
+  const donor=String(r["기증자번호"]||"").trim()||String(r["조직번호"]||"").slice(0,6);
+  const floor=String(r["냉동고 보관 구역"]||"").trim();
+  const chkHtml=CAN_EDIT?`<input type="checkbox" class="out-check" id="chk${i}" onchange="toggleCheck(${i},this)" onclick="event.stopPropagation()">`:'';
+  return`<div class="rcard" style="border-left-color:${ex.color}" id="oc${i}" onclick="toggleCard(${i},'oc')">
+    ${chkHtml}
+    <div class="codebadge">${donor||"—"}</div>
+    <div class="iinfo"><div class="iname">${typeTag(r)} ${r["품목명"]||"—"}</div><div class="isub">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div></div>
+    ${r["냉동고번호"]?`<div class="locbadge"><div class="loclabel">냉동고</div><div class="locval">${r["냉동고번호"]}</div>${floor?`<div class="locfloor">${floor}</div>`:""}</div>`:""}
+    ${group.length>1?`<div class="locbadge"><div class="loclabel">수량</div><div class="locval" style="color:#534AB7">${group.length}건</div></div>`:""}
+    <div class="expbadge"><span class="pill" style="background:${ex.color}22;color:${ex.color}">${ex.label}</span>
+      <span class="expdays">${d<0?Math.abs(d)+"일 초과":d+"일 남음"}</span><span class="expdate">${r["유효기간"]||""}</span></div>
+    <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
+      <button class="btn-copy" onclick="copyCode('${donor}',event)">📋</button>
+      ${CAN_EDIT?`<button class="btn-release" onclick="openRelease(${i},event)">출고</button>`:""}
+    </div></div>`;
+}
+
+function toggleCheck(i,cb){
+  if(cb.checked){checkedSet.add(i);document.getElementById('oc'+i)?.classList.add('checked');}
+  else{checkedSet.delete(i);document.getElementById('oc'+i)?.classList.remove('checked');}
+  updateBulkBar();
+}
+
+function toggleAll(cb){
+  checkedSet=new Set();
+  _outList.forEach((_,i)=>{
+    const chk=document.getElementById('chk'+i);
+    if(chk){chk.checked=cb.checked;if(cb.checked){checkedSet.add(i);document.getElementById('oc'+i)?.classList.add('checked');}
+    else document.getElementById('oc'+i)?.classList.remove('checked');}
   });
-  const groups=groupByDonor(filtered);_moveList=groups;
-  if(!groups.length){
-    box.innerHTML=`<div class="card"><div class="empty">보관 중인 조직이 없습니다</div></div>`;
-    targetCard.style.display='none';return;
-  }
-  box.innerHTML=`<div class="card"><div class="sec"><strong style="color:#185fa5;font-size:14px">${groups.length}건</strong> 이동 대상
-    ${CAN_EDIT?"":' <span class="pill p-idle">보기 전용 · 이동 불가</span>'}</div>
-    <div class="rlist">${groups.map(g=>{
-      const r=g[0],ex=expStatus(r["유효기간"]);
-      const donor=String(r["기증자번호"]||"").trim();
-      const floor=String(r["냉동고 보관 구역"]||"").trim();
-      return`<div class="rcard" style="border-left-color:${ex.color};cursor:default">
-        <div class="codebadge">${donor||"—"}</div>
-        <div class="iinfo"><div class="iname">${typeTag(r)} ${r["품목명"]||"—"}</div><div class="isub">${r["품목구분"]||""}</div></div>
-        ${r["냉동고번호"]?`<div class="locbadge"><div class="loclabel">현재 냉동고</div><div class="locval">${r["냉동고번호"]}</div>${floor?`<div class="locfloor">${floor}</div>`:""}</div>`:""}
-        ${g.length>1?`<div class="locbadge"><div class="loclabel">수량</div><div class="locval" style="color:#534AB7">${g.length}건</div></div>`:""}
-        <div class="expbadge"><span class="pill" style="background:${ex.color}22;color:${ex.color}">${ex.label}</span></div>
-      </div>`;
-    }).join("")}</div></div>`;
-  if(CAN_EDIT){buildMoveFridgeChips();targetCard.style.display='';}
-  else targetCard.style.display='none';
+  updateBulkBar();
 }
 
-function selectIntakeZone(n,el){
-  document.querySelectorAll('#intakeZoneChips .intake-zone-chip').forEach(e=>e.classList.remove('on'));
-  el.classList.add('on');
-  document.getElementById('iZone').value=n===0?'':n+'구역';
+function updateBulkBar(){
+  const n=checkedSet.size;
+  const cnt=document.getElementById('bulkCnt');
+  const btn=document.getElementById('btnBulkRelease');
+  if(cnt)cnt.textContent=`${n}건 선택됨`;
+  if(btn){btn.textContent=`선택 출고 (${n}건)`;btn.disabled=n===0;}
+  const chkAll=document.getElementById('chkAll');
+  if(chkAll)chkAll.indeterminate=n>0&&n<_outList.length;
 }
 
-function selectMoveZone(n,el){
-  document.querySelectorAll('#moveZoneChips .zone-chip').forEach(e=>e.classList.remove('on'));
-  el.classList.add('on');
-  document.getElementById('moveZone').value=n===0?'':n+'구역';
+function openBulkRelease(){
+  if(checkedSet.size===0)return;
+  const selected=[...checkedSet].map(i=>_outList[i]);
+  const today=todayStr();
+  bulkRelease=selected;
+  document.getElementById('modalTitle').textContent=`일괄 출고 처리`;
+  let bodyHtml=`<div class="mitem"><span>출고 대상</span><strong style="color:#e24b4a">${selected.length}명 (기증자)</strong></div>
+    <div class="mitem"><span>출고일자</span><strong style="color:#3b6d11">${today}</strong></div>
+    <div class="mitem"><span>비고</span><strong>이다빈</strong></div>
+    <div style="margin-top:12px;max-height:200px;overflow-y:auto">`;
+  selected.forEach(g=>{
+    const r=g[0],donor=String(r["기증자번호"]||"").trim(),floor=String(r["냉동고 보관 구역"]||"").trim();
+    bodyHtml+=`<div class="mitem"><span style="font-family:monospace;font-weight:700;color:#185fa5">${donor}</span>
+      <strong>${r["냉동고번호"]||""}${floor?" · "+floor:""} · ${g.length}건</strong></div>`;
+  });
+  bodyHtml+='</div>';
+  document.getElementById('modalBody').innerHTML=bodyHtml;
+  document.getElementById('modalNote').textContent=`총 ${selected.reduce((s,g)=>s+g.length,0)}건이 출고 처리됩니다.`;
+  document.getElementById('btnConfirm').disabled=false;
+  document.getElementById('modalOverlay').style.display="flex";
 }
 
-function buildMoveFridgeChips(){
-  moveSelectedFridge='';
-  document.getElementById('btnMoveConfirm').disabled=true;
-  document.getElementById('moveFridgeChips').innerHTML=FRIDGES.map(f=>{
-    const st=fridgeStat(f),safe=f.replace(/[^a-zA-Z0-9]/g,'_');
-    const sub=st.rows.length?`${st.mainPct}%`:'비어있음';
-    return`<button class="fchip" id="mfchip_${safe}" onclick="selectMoveFridge('${f}')">${f} <span style="font-weight:400;font-size:11px;color:${st.mainPct>=95?'#a32d2d':'#9a9a94'}">${sub}</span></button>`;
-  }).join('');
-}
-
-function selectMoveFridge(f){
-  moveSelectedFridge=f;
-  document.querySelectorAll('#moveFridgeChips .fchip').forEach(e=>e.classList.remove('on'));
-  document.getElementById('mfchip_'+f.replace(/[^a-zA-Z0-9]/g,'_'))?.classList.add('on');
-  document.getElementById('btnMoveConfirm').disabled=false;
-}
-
-async function confirmMove(){
-  if(!moveSelectedFridge||!_moveList.length)return;
-  if(!CAN_EDIT){alert('보기 전용 모드입니다.');return;}
-  const btn=document.getElementById('btnMoveConfirm');
-  const toZone=document.getElementById('moveZone').value.trim();
-  btn.disabled=true;btn.textContent='처리 중...';
-  let successCount=0,failCount=0;
-  for(const group of _moveList){
-    const donor=String(group[0]["기증자번호"]||"").trim();
-    try{
-      const url=`${APPS_SCRIPT_URL}?action=move&donorCode=${encodeURIComponent(donor)}&toFridge=${encodeURIComponent(moveSelectedFridge)}&toZone=${encodeURIComponent(toZone)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
-      const res=await fetch(url,{redirect:'follow'});
-      const data=await res.json();
-      if(data.success)successCount+=data.updated;
-      else failCount++;
-    }catch(err){failCount++;}
-  }
-  if(failCount===0){
-    alert(`✅ 이동 완료!\n냉동고: ${moveSelectedFridge}${toZone?"\n구역: "+toZone:""}\n처리: ${successCount}건\n\n구글 시트 '이동이력' 탭에 기록됐어요.`);
-    document.getElementById('moveInput').value='';
-    document.getElementById('moveZone').value='';
-    document.getElementById('moveResult').innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>이동 대상이 표시됩니다</div>`;
-    document.getElementById('moveTargetCard').style.display='none';
-    _moveList=[];moveSelectedFridge='';
-    // 구역 칩 초기화
-    document.querySelectorAll('#moveZoneChips .zone-chip').forEach(e=>e.classList.remove('on'));
-    document.querySelector('#moveZoneChips .zone-chip').classList.add('on');
-    setTimeout(loadData,1500);
-  }else{
-    alert(`이동 완료: ${successCount}건\n실패: ${failCount}건`);
-  }
-  btn.disabled=false;btn.textContent='이동 확인';
+function cardHtml(group,i,showRelease,prefix){
+  const r=group[0],ex=expStatus(r["유효기간"]),d=daysDiff(r["유효기간"]);
+  const donor=String(r["기증자번호"]||"").trim()||String(r["조직번호"]||"").slice(0,6);
+  const floor=String(r["냉동고 보관 구역"]||"").trim();
+  return`<div class="rcard" style="border-left-color:${ex.color}" id="${prefix}${i}" onclick="toggleCard(${i},'${prefix}')">
+    <div class="codebadge">${donor||"—"}</div>
+    <div class="iinfo"><div class="iname">${typeTag(r)} ${r["품목명"]||"—"}</div><div class="isub">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div></div>
+    ${r["냉동고번호"]?`<div class="locbadge"><div class="loclabel">냉동고</div><div class="locval">${r["냉동고번호"]}</div>${floor?`<div class="locfloor">${floor}</div>`:""}</div>`:""}
+    ${group.length>1?`<div class="locbadge"><div class="loclabel">수량</div><div class="locval" style="color:#534AB7">${group.length}건</div></div>`:""}
+    <div class="expbadge"><span class="pill" style="background:${ex.color}22;color:${ex.color}">${ex.label}</span>
+      <span class="expdays">${d<0?Math.abs(d)+"일 초과":d+"일 남음"}</span><span class="expdate">${r["유효기간"]||""}</span></div>
+    <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
+      <button class="btn-copy" onclick="copyCode('${donor}',event)">📋</button>
+    </div></div>`;
 }
 
 function copyCode(code,e){
@@ -750,9 +736,11 @@ function closeDetail(){openCard=null;document.getElementById("detail").classList
 
 function openRelease(i,e){
   e.stopPropagation();
+  bulkRelease=null;
   const group=_outList[i],r=group[0];
-  releaseItem={donor:String(r["기증자번호"]||"").trim(),count:group.length};
+  releaseItem={donor:String(r["기증자번호"]||"").trim(),count:group.length,group};
   const floor=String(r["냉동고 보관 구역"]||"").trim(),today=todayStr();
+  document.getElementById('modalTitle').textContent='출고 처리';
   document.getElementById("modalBody").innerHTML=`
     <div class="mitem"><span>기증자번호</span><strong style="color:#185fa5;font-family:monospace;font-size:15px">${releaseItem.donor||"—"}</strong></div>
     <div class="mitem"><span>품목명</span><strong>${r["품목명"]||"—"}</strong></div>
@@ -764,18 +752,119 @@ function openRelease(i,e){
   document.getElementById("btnConfirm").disabled=false;
   document.getElementById("modalOverlay").style.display="flex";
 }
-function closeModal(){document.getElementById("modalOverlay").style.display="none";releaseItem=null;const b=document.getElementById("btnConfirm");b.disabled=false;b.textContent="출고 확인";}
+
+function closeModal(){
+  document.getElementById("modalOverlay").style.display="none";
+  releaseItem=null;bulkRelease=null;
+  const b=document.getElementById("btnConfirm");b.disabled=false;b.textContent="출고 확인";
+}
 
 async function confirmRelease(){
-  if(!releaseItem)return;
-  const donor=releaseItem.donor,btn=document.getElementById("btnConfirm"),today=todayStr();
+  const btn=document.getElementById("btnConfirm");
   btn.disabled=true;btn.textContent="처리 중...";
+  const today=todayStr();
+
+  // 일괄처리
+  if(bulkRelease){
+    let ok=0,fail=0;
+    for(const group of bulkRelease){
+      const donor=String(group[0]["기증자번호"]||"").trim();
+      try{
+        const url=`${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
+        const res=await fetch(url,{redirect:'follow'});const data=await res.json();
+        if(data.success)ok+=data.updated;else fail++;
+      }catch(e){fail++;}
+    }
+    closeModal();
+    alert(`✅ 일괄 출고 완료!\n출고일자: ${today}\n처리: ${ok}건${fail>0?"\n실패: "+fail+"건":""}`);
+    setTimeout(loadData,1500);return;
+  }
+
+  // 단건처리
+  if(!releaseItem)return;
+  const donor=releaseItem.donor;
   try{
     const url=`${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
     const res=await fetch(url,{redirect:'follow'});const data=await res.json();
     if(data.success){closeModal();alert(`출고 완료\n기증자번호: ${donor}\n출고일자: ${today}\n처리: ${data.updated}건`);setTimeout(loadData,1500);}
     else{alert("출고 실패: "+(data.error||"알 수 없는 오류"));btn.disabled=false;btn.textContent="출고 확인";}
   }catch(err){alert("연결 실패\n"+err.message);btn.disabled=false;btn.textContent="출고 확인";}
+}
+
+// ── 이동 탭 ──
+function renderMove(){
+  const codes=getMultiCodes("moveInput");
+  document.getElementById("moveCount").textContent=codes.length?`${codes.length}개 코드 입력됨`:"";
+  const box=document.getElementById("moveResult");
+  const targetCard=document.getElementById("moveTargetCard");
+  if(!codes.length){box.innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>이동 대상이 표시됩니다</div>`;targetCard.style.display='none';_moveList=[];return;}
+  const filtered=STOCK.filter(r=>{const donor=String(r["기증자번호"]||"").trim(),org=String(r["조직번호"]||"").trim();return codes.some(c=>org.startsWith(c)||donor===c);});
+  const groups=groupByDonor(filtered);_moveList=groups;
+  if(!groups.length){box.innerHTML=`<div class="card"><div class="empty">보관 중인 조직이 없습니다</div></div>`;targetCard.style.display='none';return;}
+  box.innerHTML=`<div class="card"><div class="sec"><strong style="color:#185fa5;font-size:14px">${groups.length}건</strong> 이동 대상
+    ${CAN_EDIT?"":' <span class="pill p-idle">보기 전용 · 이동 불가</span>'}</div>
+    <div class="rlist">${groups.map(g=>{
+      const r=g[0],ex=expStatus(r["유효기간"]),donor=String(r["기증자번호"]||"").trim(),floor=String(r["냉동고 보관 구역"]||"").trim();
+      return`<div class="rcard" style="border-left-color:${ex.color};cursor:default">
+        <div class="codebadge">${donor||"—"}</div>
+        <div class="iinfo"><div class="iname">${typeTag(r)} ${r["품목명"]||"—"}</div><div class="isub">${r["품목구분"]||""}</div></div>
+        ${r["냉동고번호"]?`<div class="locbadge"><div class="loclabel">현재 냉동고</div><div class="locval">${r["냉동고번호"]}</div>${floor?`<div class="locfloor">${floor}</div>`:""}</div>`:""}
+        ${g.length>1?`<div class="locbadge"><div class="loclabel">수량</div><div class="locval" style="color:#534AB7">${g.length}건</div></div>`:""}
+        <div class="expbadge"><span class="pill" style="background:${ex.color}22;color:${ex.color}">${ex.label}</span></div>
+      </div>`;
+    }).join("")}</div></div>`;
+  if(CAN_EDIT){buildMoveFridgeChips();targetCard.style.display='';}else targetCard.style.display='none';
+}
+
+function selectIntakeZone(n,el){
+  document.querySelectorAll('#intakeZoneChips .intake-zone-chip').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');document.getElementById('iZone').value=n===0?'':n+'구역';
+}
+function selectMoveZone(n,el){
+  document.querySelectorAll('#moveZoneChips .zone-chip').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');document.getElementById('moveZone').value=n===0?'':n+'구역';
+}
+
+function buildMoveFridgeChips(){
+  moveSelectedFridge='';document.getElementById('btnMoveConfirm').disabled=true;
+  document.getElementById('moveFridgeChips').innerHTML=FRIDGES.map(f=>{
+    const st=fridgeStat(f),safe=f.replace(/[^a-zA-Z0-9]/g,'_');
+    const sub=st.rows.length?`${st.mainPct}%`:'비어있음';
+    return`<button class="fchip" id="mfchip_${safe}" onclick="selectMoveFridge('${f}')">${f} <span style="font-weight:400;font-size:11px;color:${st.mainPct>=95?'#a32d2d':'#9a9a94'}">${sub}</span></button>`;
+  }).join('');
+}
+function selectMoveFridge(f){
+  moveSelectedFridge=f;
+  document.querySelectorAll('#moveFridgeChips .fchip').forEach(e=>e.classList.remove('on'));
+  document.getElementById('mfchip_'+f.replace(/[^a-zA-Z0-9]/g,'_'))?.classList.add('on');
+  document.getElementById('btnMoveConfirm').disabled=false;
+}
+
+async function confirmMove(){
+  if(!moveSelectedFridge||!_moveList.length)return;
+  if(!CAN_EDIT){alert('보기 전용 모드입니다.');return;}
+  const btn=document.getElementById('btnMoveConfirm');
+  const toZone=document.getElementById('moveZone').value.trim();
+  btn.disabled=true;btn.textContent='처리 중...';
+  let successCount=0,failCount=0;
+  for(const group of _moveList){
+    const donor=String(group[0]["기증자번호"]||"").trim();
+    try{
+      const url=`${APPS_SCRIPT_URL}?action=move&donorCode=${encodeURIComponent(donor)}&toFridge=${encodeURIComponent(moveSelectedFridge)}&toZone=${encodeURIComponent(toZone)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
+      const res=await fetch(url,{redirect:'follow'});const data=await res.json();
+      if(data.success)successCount+=data.updated;else failCount++;
+    }catch(err){failCount++;}
+  }
+  if(failCount===0){
+    alert(`✅ 이동 완료!\n냉동고: ${moveSelectedFridge}${toZone?"\n구역: "+toZone:""}\n처리: ${successCount}건\n\n구글 시트 '이동이력' 탭에 기록됐어요.`);
+    document.getElementById('moveInput').value='';document.getElementById('moveZone').value='';
+    document.getElementById('moveResult').innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>이동 대상이 표시됩니다</div>`;
+    document.getElementById('moveTargetCard').style.display='none';
+    document.querySelectorAll('#moveZoneChips .zone-chip').forEach(e=>e.classList.remove('on'));
+    document.querySelector('#moveZoneChips .zone-chip').classList.add('on');
+    _moveList=[];moveSelectedFridge='';setTimeout(loadData,1500);
+  }else{alert(`이동 완료: ${successCount}건\n실패: ${failCount}건`);}
+  btn.disabled=false;btn.textContent='이동 확인';
 }
 
 let iSelectedFridge='',iFoundGroups=[];
@@ -786,9 +875,7 @@ function searchIntake(){
   const matched=NOSTORED.filter(r=>{const d=String(r["기증자번호"]||"").trim(),o=String(r["조직번호"]||"").trim();return d===code||o.startsWith(code);});
   iFoundGroups=groupByDonor(matched);
   const rcd=document.getElementById('iResultCard'),fcd=document.getElementById('iFridgeCard');
-  if(!iFoundGroups.length){
-    document.getElementById('iItems').innerHTML=`<div class="empty" style="padding:16px">냉동고 미배정 건이 없습니다</div>`;
-    rcd.style.display='';fcd.style.display='none';return;}
+  if(!iFoundGroups.length){document.getElementById('iItems').innerHTML=`<div class="empty" style="padding:16px">냉동고 미배정 건이 없습니다</div>`;rcd.style.display='';fcd.style.display='none';return;}
   document.getElementById('iItems').innerHTML=iFoundGroups.map(g=>{
     const r=g[0],donor=String(r["기증자번호"]||"").trim(),ex=expStatus(r["유효기간"]);
     return`<div class="iresult"><div class="idonor">${donor}</div><div class="iname2">${r["품목명"]||"—"}</div>
@@ -800,7 +887,6 @@ function searchIntake(){
 }
 function buildIFridgeChips(){
   iSelectedFridge='';document.getElementById('btnIntakeConfirm').disabled=true;
-  // 구역 칩 초기화
   document.querySelectorAll('#intakeZoneChips .intake-zone-chip').forEach(e=>e.classList.remove('on'));
   document.querySelector('#intakeZoneChips .intake-zone-chip').classList.add('on');
   document.getElementById('iZone').value='';
