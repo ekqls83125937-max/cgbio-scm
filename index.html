@@ -64,17 +64,17 @@ body{font-family:'Segoe UI','Malgun Gothic',Arial,sans-serif;background:#f4f4f1;
 .fr2.click:hover{background:#f7f7f4}
 .fid{width:62px;font-family:monospace;font-weight:700;font-size:14px;flex-shrink:0}
 .flrs{flex:1;display:grid;gap:6px}
-.fl2{border-radius:8px;padding:6px 8px;min-height:56px;font-size:12px;line-height:1.4}
-.fl2 b{display:block;font-weight:700;font-size:12px}
+.fl2{border-radius:8px;padding:6px 8px;min-height:56px;font-size:12px;line-height:1.4;background:#f4f4f1;color:#1f1f1e}
+.fl2 b{display:block;font-weight:700;font-size:12px;color:#6b6b66}
 .fl2 .fp{font-size:17px;font-weight:700}
-.fl2 .fb{height:4px;border-radius:2px;background:rgba(255,255,255,.7);margin-top:3px;overflow:hidden}
+.fl2 .fb{height:6px;border-radius:3px;background:#fff;margin-top:4px;overflow:hidden}
 .fl2 .fb i{display:block;height:100%}
 .fl2.e{background:#f4f4f1;border:1px dashed #d6d6d0;color:#b4b2a9}
+.fl2.e b{color:#b4b2a9}
 .tot{width:96px;text-align:right;flex-shrink:0}
 .tot b{display:block;font-size:20px;font-weight:700;line-height:1.2}
 .tot .s{display:block;font-size:11px;color:#9a9a94;margin-bottom:3px}
 .tag2{display:inline-block;border-radius:8px;padding:2px 8px;font-size:12px;font-weight:700}
-.tg-proc{background:#e6f1fb;color:#185fa5}
 .tg-idle{background:#efefeb;color:#9a9a94}
 .arw{width:14px;color:#b4b2a9;font-size:11px;flex-shrink:0}
 .pill{font-size:11px;padding:2px 9px;border-radius:10px;display:inline-block;text-align:center;font-weight:600}
@@ -247,7 +247,6 @@ textarea.multi:focus{border-color:#185fa5}
           <span><span class="dot" style="background:#378ADD"></span>뼈 (냉동고당 10도너)</span>
           <span><span class="dot" style="background:#EF9F27"></span>2ND PASS (층당 50도너)</span>
           <span><span class="dot" style="background:#1D9E75"></span>Skin-Full (층당 8도너)</span>
-          <span style="margin-left:auto">빨간 테두리 = 95% 이상</span>
         </div>
       </div>
       <div class="card">
@@ -357,7 +356,6 @@ const CAN_EDIT=PW!=="";
 const BONE_MAX=10,PASS_MAX=50,FULL_MAX=8;
 const FRIDGES=["D-0801","D-0805","D-0806","D-0808","D-0809","D-0810","D-0812","D-0813","D-0814","D-0815","D-0817","D-0818"];
 const UNUSED=["D-0818"];
-const TRANSITION=["D-0815","D-0817"];
 const BONE_C="#378ADD",PASS_C="#EF9F27",FULL_C="#1D9E75";
 const CELL={bone:["#E6F1FB","#0C447C","#378ADD"],pass:["#FAEEDA","#633806","#EF9F27"],full:["#E1F5EE","#085041","#1D9E75"]};
 
@@ -439,6 +437,7 @@ function fridgeStat(fid){
   return res;
 }
 
+// 전체 합산 (빈 층은 Skin-Full 층당 8도너로 보관가능에 포함)
 function totals(){
   let bU=0,bM=0,pU=0,pM=0,fU=0,fM=0,empt=0,noFl=0;
   activeFridges().forEach(fid=>{
@@ -447,7 +446,7 @@ function totals(){
     noFl+=st.noFloorDonors;
     if(st.hasBone&&!st.hasSkin)return;
     st.floors.forEach(f=>{
-      if(!f.type){empt++;return;}
+      if(!f.type){empt++;fM+=FULL_MAX;return;}
       if(f.type==='pass'){pU+=f.donors;pM+=PASS_MAX;}
       else{fU+=f.donors;fM+=FULL_MAX;}
     });
@@ -508,18 +507,17 @@ function remLine(label,u,m){
 }
 function cellHtml(type,label,pct){
   const c=CELL[type];
-  return`<div class="fl2" style="background:${c[0]};color:${c[1]}${pct>=95?';outline:2px solid #e24b4a':''}"><b>${label}</b><span class="fp">${pct}%</span><div class="fb"><i style="width:${pct}%;background:${c[2]}"></i></div></div>`;
+  return`<div class="fl2"><b>${label}</b><span class="fp">${pct}%</span><div class="fb"><i style="width:${pct}%;background:${c[2]}"></i></div></div>`;
 }
 
 function buildFridgeSection(){
   const T=totals();
-  const proc=TRANSITION.filter(f=>fridgeStat(f).rows.length===0);
   document.getElementById("fridgeSummary").innerHTML=
     `<div class="cs-grid">${csCard('bone','뼈',T.bU,T.bM)}${csCard('pass','피부 2ND PASS',T.pU,T.pM)}${csCard('full','피부 Skin-Full',T.fU,T.fM)}</div>
     <div class="cs-rem"><div class="h">비고</div>
       ${remLine('뼈',T.bU,T.bM)}${remLine('2ND PASS',T.pU,T.pM)}${remLine('Skin-Full',T.fU,T.fM)}
-      <div><span class="k">빈 층</span>${T.empt}개 (종류 미정) · 2ND PASS 층당 50도너, Skin-Full 층당 8도너 추가 가능</div>
-      <div><span class="k">참고</span>${proc.length?"사용 과정: "+proc.join(", ")+" · ":""}미사용(계산 제외): ${UNUSED.join(", ")}</div>
+      <div><span class="k">빈 층</span>${T.empt}개 · 보관가능은 Skin-Full 층당 8도너 기준으로 계산 (2ND PASS로 쓰면 층당 50도너)</div>
+      <div><span class="k">참고</span>미사용 냉동고 ${UNUSED.join(", ")} 추후에 추가</div>
       ${T.noFl>0?`<div><span class="k">층 미지정</span>피부 ${T.noFl}도너 (구역 번호가 없어 계산에서 제외)</div>`:""}
     </div>`;
 
@@ -539,11 +537,10 @@ function buildFridgeSection(){
       cells.push(f.type?cellHtml(f.type,f.n+'층 '+(f.type==='pass'?'2ND PASS':'Skin-Full'),f.pct):`<div class="fl2 e"><b>${f.n}층</b>비어있음</div>`);
     });
     const cols=(showFloors?4:0)+(st.hasBone?1:0);
-    const tag=idle?(TRANSITION.includes(fid)?'<span class="tag2 tg-proc">사용 과정</span>':'<span class="tag2 tg-idle">비어있음</span>'):'';
     return`<div class="fr2${idle?'':' click'}" ${idle?'':`onclick="toggleFridgeDetail('${fid}')"`}>
       <span class="fid">${fid}</span>
       <div class="flrs" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells.join("")}</div>
-      <div class="tot"><b style="color:${pctColor(st.mainPct)}">${st.mainPct}%</b><span class="s">총 사용량</span>${tag}
+      <div class="tot"><b style="color:${pctColor(st.mainPct)}">${st.mainPct}%</b><span class="s">총 사용량</span>
         ${st.expired>0?`<span class="pill p-danger" style="margin-top:3px">만료 ${st.expired}</span>`:""}</div>
       <span class="arw" id="arw_${safe}">${idle?'':'▼'}</span></div>
       <div class="fdet" id="fd_${safe}"></div>`;
@@ -635,8 +632,7 @@ function groupByDonor(rows){const m=new Map();rows.forEach(r=>{const d=String(r[
 
 function fridgeChipSub(f){
   const st=fridgeStat(f);
-  if(st.rows.length)return`${st.mainPct}%`;
-  return TRANSITION.includes(f)?'사용 과정':'비어있음';
+  return st.rows.length?`${st.mainPct}%`:'비어있음';
 }
 
 function render(){
