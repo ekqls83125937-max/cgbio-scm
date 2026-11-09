@@ -42,23 +42,41 @@ body{font-family:'Segoe UI','Malgun Gothic',Arial,sans-serif;background:#f4f4f1;
 .mc .v{font-size:23px;font-weight:600;line-height:1.25}
 .mc .s{font-size:11px;color:#9a9a94;margin-top:2px}
 .ic{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.fridge-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
-.fs-col{border-radius:10px;padding:13px 14px;text-align:center}
-.fs-lbl{font-size:13px;font-weight:700;margin-bottom:5px}
-.fs-pct{font-size:32px;font-weight:700;line-height:1;margin-bottom:4px}
-.fs-sub{font-size:12px;margin-top:3px}
-.fs-bar{height:7px;border-radius:4px;margin-top:9px;overflow:hidden}
-.fs-bar-fill{height:100%;border-radius:4px}
-.frow{display:flex;align-items:center;gap:11px;padding:10px 6px;border-bottom:1px solid #eeeee9;font-size:13px;cursor:pointer;border-radius:6px}
-.frow:hover{background:#f7f7f4}
-.frow.idle{cursor:default;color:#b4b2a9}
-.frow.idle:hover{background:none}
-.fid{width:62px;font-family:monospace;font-weight:700;font-size:14px}
-.bar{flex:1;height:10px;background:#efefeb;border-radius:5px;overflow:hidden;display:flex}
-.bar div{height:100%}
-.pct{width:42px;text-align:right;font-weight:700;font-size:14px}
-.cnt{width:56px;text-align:right;color:#9a9a94;font-size:13px}
-.arw{width:14px;color:#b4b2a9;font-size:11px}
+.cs-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.cs-card{background:#fff;border:1px solid #e3e3de;border-radius:12px;padding:12px 14px}
+.cs-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:6px}
+.cs-nm{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
+.cs-nm i{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0}
+.cs-pill{font-size:13px;font-weight:700;padding:2px 9px;border-radius:8px;white-space:nowrap}
+.cs-g{background:#eaf3de;color:#27500a}
+.cs-a{background:#faeeda;color:#633806}
+.cs-r{background:#fceaea;color:#791f1f}
+.cs-n{background:#efefeb;color:#9a9a94}
+.cs-bar{height:10px;border-radius:5px;background:#efefeb;overflow:hidden;margin-bottom:8px}
+.cs-bar div{height:100%}
+.cs-nums{display:flex;justify-content:space-between;font-size:14px;color:#6b6b66}
+.cs-nums b{font-weight:700;color:#1f1f1e}
+.cs-rem{background:#f4f4f1;border-radius:8px;padding:10px 14px;font-size:13px;color:#6b6b66;line-height:1.9;margin-bottom:14px}
+.cs-rem .k{display:inline-block;width:92px;font-weight:700;color:#1f1f1e}
+.cs-rem .h{font-weight:700;color:#1f1f1e;margin-bottom:2px}
+.fr2{display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px solid #eeeee9;border-radius:6px}
+.fr2.click{cursor:pointer}
+.fr2.click:hover{background:#f7f7f4}
+.fid{width:62px;font-family:monospace;font-weight:700;font-size:14px;flex-shrink:0}
+.flrs{flex:1;display:grid;gap:6px}
+.fl2{border-radius:8px;padding:6px 8px;min-height:56px;font-size:12px;line-height:1.4}
+.fl2 b{display:block;font-weight:700;font-size:12px}
+.fl2 .fp{font-size:17px;font-weight:700}
+.fl2 .fb{height:4px;border-radius:2px;background:rgba(255,255,255,.7);margin-top:3px;overflow:hidden}
+.fl2 .fb i{display:block;height:100%}
+.fl2.e{background:#f4f4f1;border:1px dashed #d6d6d0;color:#b4b2a9}
+.tot{width:96px;text-align:right;flex-shrink:0}
+.tot b{display:block;font-size:20px;font-weight:700;line-height:1.2}
+.tot .s{display:block;font-size:11px;color:#9a9a94;margin-bottom:3px}
+.tag2{display:inline-block;border-radius:8px;padding:2px 8px;font-size:12px;font-weight:700}
+.tg-proc{background:#e6f1fb;color:#185fa5}
+.tg-idle{background:#efefeb;color:#9a9a94}
+.arw{width:14px;color:#b4b2a9;font-size:11px;flex-shrink:0}
 .pill{font-size:11px;padding:2px 9px;border-radius:10px;display:inline-block;text-align:center;font-weight:600}
 .p-danger{background:#fceaea;color:#a32d2d}.p-warn{background:#faeeda;color:#854f0b}
 .p-ok{background:#eaf3de;color:#3b6d11}.p-idle{background:#efefeb;color:#9a9a94}
@@ -166,7 +184,6 @@ textarea.multi:focus{border-color:#185fa5}
 .chip{padding:5px 12px;border-radius:20px;border:1px solid #e3e3de;cursor:pointer;font-size:12px;background:#fff;color:#6b6b66}
 .chip.on{color:#fff}
 .badge{background:#185fa5;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:6px}
-.not-found-tag{font-size:11px;padding:3px 9px;border-radius:10px;background:#fceaea;color:#a32d2d;font-weight:600;display:inline-block;margin-top:4px}
 </style>
 </head>
 <body>
@@ -226,11 +243,11 @@ textarea.multi:focus{border-color:#185fa5}
         <div class="sec">냉동고별 가동률 <span style="font-weight:400;color:#9a9a94">· 클릭하면 구역별 보관 내역</span></div>
         <div id="fridgeSummary"></div>
         <div id="fridgeList"></div>
-        <div style="display:flex;gap:14px;margin-top:10px;font-size:12px;color:#9a9a94;flex-wrap:wrap;align-items:center">
-          <span><span class="dot" style="background:#378ADD"></span>뼈</span>
-          <span><span class="dot" style="background:#EF9F27"></span>피부 2ND PASS</span>
-          <span><span class="dot" style="background:#1D9E75"></span>피부 Skin-Full</span>
-          <span style="margin-left:auto">피부 Max 67,000 · 뼈 Max 10도너</span>
+        <div style="display:flex;gap:14px;margin-top:10px;font-size:12px;color:#6b6b66;flex-wrap:wrap;align-items:center">
+          <span><span class="dot" style="background:#378ADD"></span>뼈 (냉동고당 10도너)</span>
+          <span><span class="dot" style="background:#EF9F27"></span>2ND PASS (층당 50도너)</span>
+          <span><span class="dot" style="background:#1D9E75"></span>Skin-Full (층당 8도너)</span>
+          <span style="margin-left:auto">빨간 테두리 = 95% 이상</span>
         </div>
       </div>
       <div class="card">
@@ -337,9 +354,12 @@ const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbweW2NkNpUIz2cU0cFPhYu3jKf4z2yNTPTqxvxr82iCc5scwpwARLleO3_MKT1dygfI/exec";
 const PW=new URLSearchParams(window.location.search).get("pw")||"";
 const CAN_EDIT=PW!=="";
-const SKIN_MAX=67000,BONE_MAX=10;
+const BONE_MAX=10,PASS_MAX=50,FULL_MAX=8;
 const FRIDGES=["D-0801","D-0805","D-0806","D-0808","D-0809","D-0810","D-0812","D-0813","D-0814","D-0815","D-0817","D-0818"];
+const UNUSED=["D-0818"];
+const TRANSITION=["D-0815","D-0817"];
 const BONE_C="#378ADD",PASS_C="#EF9F27",FULL_C="#1D9E75";
+const CELL={bone:["#E6F1FB","#0C447C","#378ADD"],pass:["#FAEEDA","#633806","#EF9F27"],full:["#E1F5EE","#085041","#1D9E75"]};
 
 let ALL=[],STOCK=[],NOSTORED=[];
 let selType=[],selFridge=[],selExp=[];
@@ -348,6 +368,7 @@ let filterOpen=false,openCard=null,releaseItem=null,bulkRelease=null,openFridge=
 let _list=[],_outList=[],_moveList=[],_intakeList=[];
 let moveSelectedFridge='',intakeSelectedFridge='';
 let checkedSet=new Set();
+let _statCache={};
 
 const TODAY=new Date();
 function daysDiff(s){if(!s)return 9999;return Math.ceil((new Date(s)-TODAY)/86400000);}
@@ -357,10 +378,11 @@ function isSkinItem(r){return String(r["구분"]||"").includes("피부");}
 function isBoneItem(r){return String(r["구분"]||"").includes("뼈");}
 function is2ndPass(r){const n=String(r["품목명"]||"").toUpperCase();return isSkinItem(r)&&(n.includes("2ND")||n.includes("PASS"));}
 function isSkinFull(r){return isSkinItem(r)&&!is2ndPass(r);}
-function parseArValue(r){if(!isSkinItem(r))return 0;const s=(r["규격1"]||"")+(r["규격2"]||"");const m=s.match(/Ar[:\s]*([\d,]+)/i);return m?parseInt(m[1].replace(/,/g,"")):0;}
+function donorOf(r){return String(r["기증자번호"]||"").trim()||String(r["조직번호"]||"").slice(0,6);}
+function floorNo(r){const m=String(r["냉동고 보관 구역"]||"").match(/\d+/);const n=m?parseInt(m[0]):0;return(n>=1&&n<=4)?n:0;}
 function pctColor(p){if(p>=95)return"#e24b4a";if(p>=80)return"#ef9f27";if(p>=60)return"#BA7517";return"#639922";}
-function pctPill(p){if(p>=95)return'<span class="pill p-danger">포화</span>';if(p>=80)return'<span class="pill p-warn">주의</span>';return'<span class="pill p-ok">여유</span>';}
 function typeTag(r){return isBoneItem(r)?'<span class="pill p-bone">뼈</span>':is2ndPass(r)?'<span class="pill" style="background:#faeeda;color:#854f0b">2ND PASS</span>':'<span class="pill" style="background:#e1f5ee;color:#0f6e56">Skin-Full</span>';}
+function activeFridges(){return FRIDGES.filter(f=>!UNUSED.includes(f));}
 
 function setTab(t){
   ['status','intake','out','move'].forEach(k=>{
@@ -378,6 +400,7 @@ function loadData(){
       ALL=res.data;
       STOCK=ALL.filter(r=>(!r["출고일자"]||r["출고일자"].trim()==="")&&r["냉동고번호"]&&r["냉동고번호"].trim()!=="");
       NOSTORED=ALL.filter(r=>(!r["출고일자"]||r["출고일자"].trim()==="")&&(!r["냉동고번호"]||r["냉동고번호"].trim()===""));
+      _statCache={};
       document.getElementById("updated").textContent=new Date().toLocaleTimeString("ko-KR")+" 기준";
       buildAll();hide("loading");show("dash");
     },
@@ -385,22 +408,58 @@ function loadData(){
   });
 }
 
+// 냉동고별 통계 (모두 도너 기준)
 function fridgeStat(fid){
+  if(_statCache[fid])return _statCache[fid];
   const rows=STOCK.filter(r=>String(r["냉동고번호"]||"").trim()===fid);
-  const passAr=rows.filter(is2ndPass).reduce((s,r)=>s+parseArValue(r),0);
-  const fullAr=rows.filter(isSkinFull).reduce((s,r)=>s+parseArValue(r),0);
-  const passPct=Math.min(100,Math.round(passAr/SKIN_MAX*100));
-  const fullPct=Math.min(100,Math.round(fullAr/SKIN_MAX*100));
-  const boneDonors=new Set(rows.filter(isBoneItem).map(r=>String(r["기증자번호"]||"").trim()).filter(Boolean)).size;
+  const boneRows=rows.filter(isBoneItem);
+  const skinRows=rows.filter(isSkinItem);
+  const boneDonors=new Set(boneRows.map(donorOf)).size;
   const bonePct=Math.min(100,Math.round(boneDonors/BONE_MAX*100));
-  const mainPct=Math.min(100,bonePct+passPct+fullPct);
-  return{rows,passPct,fullPct,passAr,fullAr,boneDonors,bonePct,mainPct,expired:rows.filter(r=>daysDiff(r["유효기간"])<0).length};
+  const floors=[1,2,3,4].map(n=>{
+    const fr=skinRows.filter(r=>floorNo(r)===n);
+    if(!fr.length)return{n,type:null,donors:0,pct:0};
+    const pd=new Set(fr.filter(is2ndPass).map(donorOf)).size;
+    const fd=new Set(fr.filter(isSkinFull).map(donorOf)).size;
+    const type=pd>=fd?'pass':'full';
+    const donors=new Set(fr.map(donorOf)).size;
+    const cap=type==='pass'?PASS_MAX:FULL_MAX;
+    return{n,type,donors,pct:Math.min(100,Math.round(donors/cap*100))};
+  });
+  const noFloorDonors=new Set(skinRows.filter(r=>floorNo(r)===0).map(donorOf)).size;
+  const passDonors=new Set(skinRows.filter(is2ndPass).map(donorOf)).size;
+  const fullDonors=new Set(skinRows.filter(isSkinFull).map(donorOf)).size;
+  const hasSkin=skinRows.length>0,hasBone=boneDonors>0;
+  const cells=[];
+  if(hasBone)cells.push(bonePct);
+  if(hasSkin||!hasBone)floors.forEach(f=>cells.push(f.pct));
+  const mainPct=cells.length?Math.round(cells.reduce((a,b)=>a+b,0)/cells.length):0;
+  const res={rows,boneDonors,bonePct,floors,noFloorDonors,passDonors,fullDonors,hasSkin,hasBone,mainPct,expired:rows.filter(r=>daysDiff(r["유효기간"])<0).length};
+  _statCache[fid]=res;
+  return res;
+}
+
+function totals(){
+  let bU=0,bM=0,pU=0,pM=0,fU=0,fM=0,empt=0,noFl=0;
+  activeFridges().forEach(fid=>{
+    const st=fridgeStat(fid);
+    if(st.hasBone){bU+=st.boneDonors;bM+=BONE_MAX;}
+    noFl+=st.noFloorDonors;
+    if(st.hasBone&&!st.hasSkin)return;
+    st.floors.forEach(f=>{
+      if(!f.type){empt++;return;}
+      if(f.type==='pass'){pU+=f.donors;pM+=PASS_MAX;}
+      else{fU+=f.donors;fM+=FULL_MAX;}
+    });
+  });
+  return{bU,bM,pU,pM,fU,fM,empt,noFl};
 }
 
 function buildAll(){buildAlert();buildMetrics();buildFridgeSection();buildExpDist();buildHistory();buildChips();render();renderOut();}
 
 function buildAlert(){
-  const full=FRIDGES.filter(f=>fridgeStat(f).mainPct>=95).length;
+  const used=activeFridges().filter(f=>fridgeStat(f).rows.length>0);
+  const full=used.filter(f=>fridgeStat(f).mainPct>=95).length;
   const expired=STOCK.filter(r=>daysDiff(r["유효기간"])<0).length;
   const msgs=[];
   if(full>0)msgs.push(`냉동고 ${full}대 포화(95% 이상) — 신규 입고 여유 공간 부족`);
@@ -412,10 +471,10 @@ function buildAlert(){
 
 function buildMetrics(){
   const bone=STOCK.filter(isBoneItem),skin=STOCK.filter(isSkinItem);
-  const boneDonors=new Set(bone.map(r=>String(r["기증자번호"]||"").trim()).filter(Boolean)).size;
-  const skinAr=skin.reduce((s,r)=>s+parseArValue(r),0);
-  const used=FRIDGES.filter(f=>fridgeStat(f).rows.length>0);
-  const full=FRIDGES.filter(f=>fridgeStat(f).mainPct>=95).length;
+  const boneDonors=new Set(bone.map(donorOf)).size;
+  const skinDonors=new Set(skin.map(donorOf)).size;
+  const used=activeFridges().filter(f=>fridgeStat(f).rows.length>0);
+  const full=used.filter(f=>fridgeStat(f).mainPct>=95).length;
   const avg=used.length?Math.round(used.reduce((s,f)=>s+fridgeStat(f).mainPct,0)/used.length):0;
   const boneSvg=`<svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="${BONE_C}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20c-2 0-3.5 1.5-3.5 3.5S4 27 6 27c.8 0 1.5-.3 2-.7.5.5 1.2.7 2 .7 2 0 3.5-1.5 3.5-3.5 0-1.3-.7-2.4-1.8-3L20.7 12c.6 1.1 1.7 1.8 3 1.8 2 0 3.5-1.5 3.5-3.5S25.7 6.8 23.7 6.8c-.8 0-1.5.3-2 .7-.5-.5-1.2-.7-2-.7-2 0-3.5 1.5-3.5 3.5 0 1.3.7 2.4 1.8 3L9 22.3c-.6-1.1-1.7-1.8-3-1.8z"/></svg>`;
   const skinSvg=`<svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="${PASS_C}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="24" height="20" rx="3"/><path d="M4 12h24M4 18h24"/><circle cx="10" cy="22" r="1"/><circle cx="16" cy="22" r="1"/><circle cx="22" cy="22" r="1"/></svg>`;
@@ -425,59 +484,68 @@ function buildMetrics(){
   <div class="mc"><div class="ic" style="background:#e6f1fb">${boneSvg}</div>
     <div><div class="l">뼈 보관</div><div class="v">${bone.length}<span style="font-size:13px;color:#9a9a94">건</span></div><div class="s">기증자 ${boneDonors}명</div></div></div>
   <div class="mc"><div class="ic" style="background:#faeeda">${skinSvg}</div>
-    <div><div class="l">피부 보관</div><div class="v">${skin.length}<span style="font-size:13px;color:#9a9a94">건</span></div><div class="s">Ar 합계 ${Math.round(skinAr/1000)}K</div></div></div>
+    <div><div class="l">피부 보관</div><div class="v">${skin.length}<span style="font-size:13px;color:#9a9a94">건</span></div><div class="s">기증자 ${skinDonors}명</div></div></div>
   <div class="mc"><div class="ic" style="background:#fceaea"><span style="font-size:22px">🧊</span></div>
-    <div><div class="l">평균 가동률</div><div class="v" style="color:${pctColor(avg)}">${avg}%</div><div class="s">${FRIDGES.length}대 중 ${full}대 포화</div></div></div>`;
+    <div><div class="l">평균 가동률</div><div class="v" style="color:${pctColor(avg)}">${avg}%</div><div class="s">${used.length}대 중 ${full}대 포화</div></div></div>`;
+}
+
+function csCard(k,title,u,m){
+  const c=CELL[k];
+  const p=m?Math.min(100,Math.round(u/m*100)):0,a=100-p;
+  let pill;
+  if(!m)pill='<span class="cs-pill cs-n">해당 없음</span>';
+  else if(a>=40)pill='<span class="cs-pill cs-g">여유</span>';
+  else if(a>=15)pill='<span class="cs-pill cs-a">주의</span>';
+  else pill='<span class="cs-pill cs-r">거의 가득</span>';
+  return`<div class="cs-card"><div class="cs-top"><span class="cs-nm"><i style="background:${c[2]}"></i>${title}</span>${pill}</div>
+  <div class="cs-bar"><div style="width:${p}%;background:${c[2]}"></div></div>
+  <div class="cs-nums"><span>보관중 <b>${m?p+'%':'—'}</b></span><span>보관가능 <b>${m?a+'%':'—'}</b></span></div></div>`;
+}
+function remLine(label,u,m){
+  if(!m)return`<div><span class="k">${label}</span>해당 없음</div>`;
+  const p=Math.min(100,Math.round(u/m*100));
+  return`<div><span class="k">${label}</span>${p}% 보관중 · ${Math.max(0,m-u)}도너 보관가능</div>`;
+}
+function cellHtml(type,label,pct){
+  const c=CELL[type];
+  return`<div class="fl2" style="background:${c[0]};color:${c[1]}${pct>=95?';outline:2px solid #e24b4a':''}"><b>${label}</b><span class="fp">${pct}%</span><div class="fb"><i style="width:${pct}%;background:${c[2]}"></i></div></div>`;
 }
 
 function buildFridgeSection(){
-  const totalFridges=FRIDGES.length;
-  const allPassAr=STOCK.filter(is2ndPass).reduce((s,r)=>s+parseArValue(r),0);
-  const allFullAr=STOCK.filter(isSkinFull).reduce((s,r)=>s+parseArValue(r),0);
-  const allBoneDonors=new Set(STOCK.filter(isBoneItem).map(r=>String(r["기증자번호"]||"").trim()).filter(Boolean)).size;
-  const allPassCnt=STOCK.filter(is2ndPass).length;
-  const allFullCnt=STOCK.filter(isSkinFull).length;
-  const allBoneCnt=STOCK.filter(isBoneItem).length;
-  const passPctAll=Math.min(100,Math.round(allPassAr/(SKIN_MAX*totalFridges)*100));
-  const fullPctAll=Math.min(100,Math.round(allFullAr/(SKIN_MAX*totalFridges)*100));
-  const bonePctAll=Math.min(100,Math.round(allBoneDonors/(BONE_MAX*totalFridges)*100));
-  document.getElementById("fridgeSummary").innerHTML=`
-  <div class="fridge-summary">
-    <div class="fs-col" style="background:#e6f1fb">
-      <div class="fs-lbl" style="color:#185fa5">🦴 뼈 (파란색)</div>
-      <div class="fs-pct" style="color:#185fa5">${bonePctAll}%</div>
-      <div class="fs-sub" style="color:#5a8ab5">${allBoneCnt}조직자 보관 중</div>
-      <div class="fs-bar" style="background:#b5d4f4"><div class="fs-bar-fill" style="width:${bonePctAll}%;background:#185fa5"></div></div>
-    </div>
-    <div class="fs-col" style="background:#faeeda">
-      <div class="fs-lbl" style="color:#854f0b">🧬 피부 2ND PASS (노란색)</div>
-      <div class="fs-pct" style="color:#854f0b">${passPctAll}%</div>
-      <div class="fs-sub" style="color:#a07040">${allPassCnt}조직자 보관 중</div>
-      <div class="fs-bar" style="background:#fac775"><div class="fs-bar-fill" style="width:${passPctAll}%;background:#EF9F27"></div></div>
-    </div>
-    <div class="fs-col" style="background:#e1f5ee">
-      <div class="fs-lbl" style="color:#0f6e56">🧬 피부 Skin-Full (민트)</div>
-      <div class="fs-pct" style="color:#0f6e56">${fullPctAll}%</div>
-      <div class="fs-sub" style="color:#3a8870">${allFullCnt}조직자 보관 중</div>
-      <div class="fs-bar" style="background:#9fe1cb"><div class="fs-bar-fill" style="width:${fullPctAll}%;background:#1D9E75"></div></div>
-    </div>
-  </div>`;
+  const T=totals();
+  const proc=TRANSITION.filter(f=>fridgeStat(f).rows.length===0);
+  document.getElementById("fridgeSummary").innerHTML=
+    `<div class="cs-grid">${csCard('bone','뼈',T.bU,T.bM)}${csCard('pass','피부 2ND PASS',T.pU,T.pM)}${csCard('full','피부 Skin-Full',T.fU,T.fM)}</div>
+    <div class="cs-rem"><div class="h">비고</div>
+      ${remLine('뼈',T.bU,T.bM)}${remLine('2ND PASS',T.pU,T.pM)}${remLine('Skin-Full',T.fU,T.fM)}
+      <div><span class="k">빈 층</span>${T.empt}개 (종류 미정) · 2ND PASS 층당 50도너, Skin-Full 층당 8도너 추가 가능</div>
+      <div><span class="k">참고</span>${proc.length?"사용 과정: "+proc.join(", ")+" · ":""}미사용(계산 제외): ${UNUSED.join(", ")}</div>
+      ${T.noFl>0?`<div><span class="k">층 미지정</span>피부 ${T.noFl}도너 (구역 번호가 없어 계산에서 제외)</div>`:""}
+    </div>`;
+
   document.getElementById("fridgeList").innerHTML=FRIDGES.map(fid=>{
     const st=fridgeStat(fid);
-    const idle=st.rows.length===0;
     const safe=fid.replace(/[^a-zA-Z0-9]/g,'_');
-    if(idle)return`<div class="frow idle"><span class="fid">${fid}</span><div class="bar"></div><span class="pct">—</span><span class="cnt">0건</span><span class="pill p-idle">비어있음</span><span class="arw"></span></div>`;
-    return`<div class="frow" onclick="toggleFridgeDetail('${fid}')">
+    if(UNUSED.includes(fid)){
+      return`<div class="fr2"><span class="fid" style="color:#b4b2a9">${fid}</span>
+        <div class="flrs" style="grid-template-columns:1fr"><div class="fl2 e"><b>미사용</b>사용 전 · 계산 제외</div></div>
+        <div class="tot"><b style="color:#b4b2a9">—</b><span class="s">총 사용량</span><span class="tag2 tg-idle">미사용</span></div><span class="arw"></span></div>`;
+    }
+    const idle=st.rows.length===0;
+    const showFloors=st.hasSkin||!st.hasBone;
+    const cells=[];
+    if(st.hasBone)cells.push(cellHtml('bone','뼈',st.bonePct));
+    if(showFloors)st.floors.forEach(f=>{
+      cells.push(f.type?cellHtml(f.type,f.n+'층 '+(f.type==='pass'?'2ND PASS':'Skin-Full'),f.pct):`<div class="fl2 e"><b>${f.n}층</b>비어있음</div>`);
+    });
+    const cols=(showFloors?4:0)+(st.hasBone?1:0);
+    const tag=idle?(TRANSITION.includes(fid)?'<span class="tag2 tg-proc">사용 과정</span>':'<span class="tag2 tg-idle">비어있음</span>'):'';
+    return`<div class="fr2${idle?'':' click'}" ${idle?'':`onclick="toggleFridgeDetail('${fid}')"`}>
       <span class="fid">${fid}</span>
-      <div class="bar">
-        ${st.bonePct?`<div style="width:${st.bonePct}%;background:${BONE_C}"></div>`:""}
-        ${st.passPct?`<div style="width:${st.passPct}%;background:${PASS_C}"></div>`:""}
-        ${st.fullPct?`<div style="width:${st.fullPct}%;background:${FULL_C}"></div>`:""}
-      </div>
-      <span class="pct" style="color:${pctColor(st.mainPct)}">${st.mainPct}%</span>
-      <span class="cnt">${st.rows.length}건</span>${pctPill(st.mainPct)}
-      ${st.expired>0?`<span class="pill p-danger">만료 ${st.expired}</span>`:""}
-      <span class="arw" id="arw_${safe}">▼</span></div>
+      <div class="flrs" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells.join("")}</div>
+      <div class="tot"><b style="color:${pctColor(st.mainPct)}">${st.mainPct}%</b><span class="s">총 사용량</span>${tag}
+        ${st.expired>0?`<span class="pill p-danger" style="margin-top:3px">만료 ${st.expired}</span>`:""}</div>
+      <span class="arw" id="arw_${safe}">${idle?'':'▼'}</span></div>
       <div class="fdet" id="fd_${safe}"></div>`;
   }).join("");
 }
@@ -492,8 +560,8 @@ function toggleFridgeDetail(fid){
   const zones=new Map();
   st.rows.forEach(r=>{const z=String(r["냉동고 보관 구역"]||"").trim()||"구역 미지정";if(!zones.has(z))zones.set(z,[]);zones.get(z).push(r);});
   const sorted=[...zones.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ko',{numeric:true}));
-  box.innerHTML=`<div style="font-size:11px;color:#8a8a84;margin-bottom:9px">
-    2ND PASS ${st.passPct}% (${Math.round(st.passAr/1000)}K) · Skin-Full ${st.fullPct}% (${Math.round(st.fullAr/1000)}K) · 뼈 ${st.boneDonors}/${BONE_MAX}도너 · 총 ${st.rows.length}건</div>`+
+  box.innerHTML=`<div style="font-size:12px;color:#6b6b66;margin-bottom:9px">
+    뼈 ${st.boneDonors}도너 · 2ND PASS ${st.passDonors}도너 · Skin-Full ${st.fullDonors}도너 · 총 ${st.rows.length}건</div>`+
     sorted.map(([z,rows])=>{
       const donors=new Map();
       rows.forEach(r=>{const d=String(r["기증자번호"]||"").trim()||"—";if(!donors.has(d))donors.set(d,[]);donors.get(d).push(r);});
@@ -542,7 +610,7 @@ function buildHistory(){
 
 function buildChips(){
   const types=[...new Set(STOCK.map(r=>r["품목구분"]).filter(Boolean))];
-  const used=FRIDGES.filter(f=>fridgeStat(f).rows.length>0);
+  const used=activeFridges().filter(f=>fridgeStat(f).rows.length>0);
   rc("cType",["전체",...types],selType,"#378ADD",toggleType);
   rc("cFridge",["전체",...used],selFridge,"#7F77DD",toggleFridge2);
   rc("cExp",["전체",...EXP_OPTS],selExp,"#1D9E75",toggleExp);
@@ -562,9 +630,14 @@ function tog(a,v){if(v==="전체"){a.length=0;return;}const i=a.indexOf(v);i>=0?
 function toggleFilter(){filterOpen=!filterOpen;document.getElementById("fbody").classList.toggle("open",filterOpen);document.getElementById("farrow").textContent=filterOpen?"▲":"▼";}
 
 function onSearch(el){el.value=el.value.replace(/\D/g,"").slice(0,6);const c=document.getElementById("scnt");c.textContent=el.value.length+"/6";c.className="scnt"+(el.value.length===6?" on":"");}
-function onIS(el,id){el.value=el.value.replace(/\D/g,"").slice(0,6);const c=document.getElementById(id);c.textContent=el.value.length+"/6";c.className="scnt"+(el.value.length===6?" on":"");}
 function getMultiCodes(id){return[...new Set(document.getElementById(id).value.split(/[\n,\s]+/).map(s=>s.replace(/\D/g,"").trim()).filter(s=>s.length>=4))];}
 function groupByDonor(rows){const m=new Map();rows.forEach(r=>{const d=String(r["기증자번호"]||"").trim();if(!m.has(d))m.set(d,[]);m.get(d).push(r);});return[...m.values()];}
+
+function fridgeChipSub(f){
+  const st=fridgeStat(f);
+  if(st.rows.length)return`${st.mainPct}%`;
+  return TRANSITION.includes(f)?'사용 과정':'비어있음';
+}
 
 function render(){
   const code=document.getElementById("sinput").value.trim();
@@ -597,7 +670,6 @@ function renderIntake(){
     box.innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>입고 대상이 표시됩니다</div>`;
     fridgeCard.style.display='none';_intakeList=[];return;
   }
-  // 찾은 것 / 못 찾은 것 분류
   const found=[];const notFound=[];
   codes.forEach(code=>{
     const matched=NOSTORED.filter(r=>{
@@ -614,8 +686,7 @@ function renderIntake(){
   }
   let notFoundHtml='';
   if(notFound.length>0){
-    notFoundHtml=`<div style="margin-top:8px;padding:8px 12px;background:#fceaea;border-radius:8px;font-size:12px;color:#a32d2d">
-      ⚠️ 미배정 건 없음: ${notFound.join(', ')}</div>`;
+    notFoundHtml=`<div style="margin-top:8px;padding:8px 12px;background:#fceaea;border-radius:8px;font-size:12px;color:#a32d2d">⚠️ 미배정 건 없음: ${notFound.join(', ')}</div>`;
   }
   box.innerHTML=`<div class="card">
     <div class="sec"><strong style="color:#185fa5;font-size:14px">${groups.length}건</strong> 입고 대상
@@ -640,25 +711,21 @@ function buildIntakeFridgeChips(){
   document.querySelectorAll('#intakeZoneChips .intake-zone-chip').forEach(e=>e.classList.remove('on'));
   document.querySelector('#intakeZoneChips .intake-zone-chip').classList.add('on');
   document.getElementById('iZone').value='';
-  document.getElementById('intakeFridgeChips').innerHTML=FRIDGES.map(f=>{
+  document.getElementById('intakeFridgeChips').innerHTML=activeFridges().map(f=>{
     const st=fridgeStat(f),safe=f.replace(/[^a-zA-Z0-9]/g,'_');
-    const sub=st.rows.length?`${st.mainPct}%`:'비어있음';
-    return`<button class="fchip" id="ifchip_${safe}" onclick="selectIntakeFridge('${f}')">${f} <span style="font-weight:400;font-size:11px;color:${st.mainPct>=95?'#a32d2d':'#9a9a94'}">${sub}</span></button>`;
+    return`<button class="fchip" id="ifchip_${safe}" onclick="selectIntakeFridge('${f}')">${f} <span style="font-weight:400;font-size:11px;color:${st.mainPct>=95?'#a32d2d':'#9a9a94'}">${fridgeChipSub(f)}</span></button>`;
   }).join('');
 }
-
 function selectIntakeFridge(f){
   intakeSelectedFridge=f;
   document.querySelectorAll('#intakeFridgeChips .fchip').forEach(e=>e.classList.remove('on'));
   document.getElementById('ifchip_'+f.replace(/[^a-zA-Z0-9]/g,'_'))?.classList.add('on');
   document.getElementById('btnIntakeConfirm').disabled=false;
 }
-
 function selectIntakeZone(n,el){
   document.querySelectorAll('#intakeZoneChips .intake-zone-chip').forEach(e=>e.classList.remove('on'));
   el.classList.add('on');document.getElementById('iZone').value=n===0?'':n+'구역';
 }
-
 async function confirmIntake(){
   if(!intakeSelectedFridge||!_intakeList.length)return;
   const zone=document.getElementById('iZone').value.trim();
@@ -905,10 +972,9 @@ function selectMoveZone(n,el){
 }
 function buildMoveFridgeChips(){
   moveSelectedFridge='';document.getElementById('btnMoveConfirm').disabled=true;
-  document.getElementById('moveFridgeChips').innerHTML=FRIDGES.map(f=>{
+  document.getElementById('moveFridgeChips').innerHTML=activeFridges().map(f=>{
     const st=fridgeStat(f),safe=f.replace(/[^a-zA-Z0-9]/g,'_');
-    const sub=st.rows.length?`${st.mainPct}%`:'비어있음';
-    return`<button class="fchip" id="mfchip_${safe}" onclick="selectMoveFridge('${f}')">${f} <span style="font-weight:400;font-size:11px;color:${st.mainPct>=95?'#a32d2d':'#9a9a94'}">${sub}</span></button>`;
+    return`<button class="fchip" id="mfchip_${safe}" onclick="selectMoveFridge('${f}')">${f} <span style="font-weight:400;font-size:11px;color:${st.mainPct>=95?'#a32d2d':'#9a9a94'}">${fridgeChipSub(f)}</span></button>`;
   }).join('');
 }
 function selectMoveFridge(f){
