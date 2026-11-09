@@ -56,9 +56,19 @@ body{font-family:'Segoe UI','Malgun Gothic',Arial,sans-serif;background:#f4f4f1;
 .cs-bar div{height:100%}
 .cs-nums{display:flex;justify-content:space-between;font-size:14px;color:#6b6b66}
 .cs-nums b{font-weight:700;color:#1f1f1e}
-.cs-rem{background:#f4f4f1;border-radius:8px;padding:10px 14px;font-size:13px;color:#6b6b66;line-height:1.9;margin-bottom:14px}
-.cs-rem .k{display:inline-block;width:92px;font-weight:700;color:#1f1f1e}
-.cs-rem .h{font-weight:700;color:#1f1f1e;margin-bottom:2px}
+/* 비고 */
+.cs-rem{background:#f4f4f1;border-radius:10px;padding:12px 16px;font-size:14px;line-height:1.8;margin-bottom:14px;color:#1f1f1e}
+.rm-t{font-weight:700;font-size:15px;margin-bottom:2px}
+.rm-g{font-size:12px;font-weight:700;color:#6b6b66;margin:10px 0 3px}
+.rm-ln{display:flex;gap:10px;align-items:baseline;padding:2px 0}
+.rm-k{width:104px;font-weight:700;flex-shrink:0;display:flex;align-items:center;gap:6px}
+.rm-k i{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0}
+.rm-v{color:#4a4a46}
+.rm-v b{color:#1f1f1e}
+.rm-s{font-size:12px;color:#8a8a84}
+.rm-box{background:#fff;border:1px dashed #d6d6d0;border-radius:8px;padding:8px 12px}
+.rm-box .rm-ln{padding:3px 0}
+.tg-fr{display:inline-block;font-family:monospace;font-weight:700;font-size:12px;background:#e6f1fb;color:#185fa5;border-radius:6px;padding:1px 7px;margin-right:4px}
 .fr2{display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px solid #eeeee9;border-radius:6px}
 .fr2.click{cursor:pointer}
 .fr2.click:hover{background:#f7f7f4}
@@ -245,7 +255,7 @@ textarea.multi:focus{border-color:#185fa5}
         <div id="fridgeList"></div>
         <div style="display:flex;gap:14px;margin-top:10px;font-size:12px;color:#6b6b66;flex-wrap:wrap;align-items:center">
           <span><span class="dot" style="background:#378ADD"></span>뼈 (냉동고당 10도너)</span>
-          <span><span class="dot" style="background:#EF9F27"></span>2ND PASS (층당 50도너)</span>
+          <span><span class="dot" style="background:#EF9F27"></span>2ND PASS (1층 50도너)</span>
           <span><span class="dot" style="background:#1D9E75"></span>Skin-Full (층당 8도너)</span>
         </div>
       </div>
@@ -378,6 +388,8 @@ function is2ndPass(r){const n=String(r["품목명"]||"").toUpperCase();return is
 function isSkinFull(r){return isSkinItem(r)&&!is2ndPass(r);}
 function donorOf(r){return String(r["기증자번호"]||"").trim()||String(r["조직번호"]||"").slice(0,6);}
 function floorNo(r){const m=String(r["냉동고 보관 구역"]||"").match(/\d+/);const n=m?parseInt(m[0]):0;return(n>=1&&n<=4)?n:0;}
+// 2ND PASS는 구역 입력과 관계없이 항상 1층으로 계산
+function floorOf(r){return is2ndPass(r)?1:floorNo(r);}
 function pctColor(p){if(p>=95)return"#e24b4a";if(p>=80)return"#ef9f27";if(p>=60)return"#BA7517";return"#639922";}
 function typeTag(r){return isBoneItem(r)?'<span class="pill p-bone">뼈</span>':is2ndPass(r)?'<span class="pill" style="background:#faeeda;color:#854f0b">2ND PASS</span>':'<span class="pill" style="background:#e1f5ee;color:#0f6e56">Skin-Full</span>';}
 function activeFridges(){return FRIDGES.filter(f=>!UNUSED.includes(f));}
@@ -415,7 +427,7 @@ function fridgeStat(fid){
   const boneDonors=new Set(boneRows.map(donorOf)).size;
   const bonePct=Math.min(100,Math.round(boneDonors/BONE_MAX*100));
   const floors=[1,2,3,4].map(n=>{
-    const fr=skinRows.filter(r=>floorNo(r)===n);
+    const fr=skinRows.filter(r=>floorOf(r)===n);
     if(!fr.length)return{n,type:null,donors:0,pct:0};
     const pd=new Set(fr.filter(is2ndPass).map(donorOf)).size;
     const fd=new Set(fr.filter(isSkinFull).map(donorOf)).size;
@@ -424,7 +436,7 @@ function fridgeStat(fid){
     const cap=type==='pass'?PASS_MAX:FULL_MAX;
     return{n,type,donors,pct:Math.min(100,Math.round(donors/cap*100))};
   });
-  const noFloorDonors=new Set(skinRows.filter(r=>floorNo(r)===0).map(donorOf)).size;
+  const noFloorDonors=new Set(skinRows.filter(r=>floorOf(r)===0).map(donorOf)).size;
   const passDonors=new Set(skinRows.filter(is2ndPass).map(donorOf)).size;
   const fullDonors=new Set(skinRows.filter(isSkinFull).map(donorOf)).size;
   const hasSkin=skinRows.length>0,hasBone=boneDonors>0;
@@ -437,21 +449,30 @@ function fridgeStat(fid){
   return res;
 }
 
-// 전체 합산 (빈 층은 Skin-Full 층당 8도너로 보관가능에 포함)
+// 전체 합산: 이미 사용 중인 공간만 계산 (빈 공간은 따로 표시)
 function totals(){
-  let bU=0,bM=0,pU=0,pM=0,fU=0,fM=0,empt=0,noFl=0;
+  let bU=0,bM=0,pU=0,pM=0,fU=0,fM=0,noFl=0;
+  const emptyFr=[],emptyFl=[];
   activeFridges().forEach(fid=>{
     const st=fridgeStat(fid);
+    if(st.rows.length===0){emptyFr.push(fid);return;}
     if(st.hasBone){bU+=st.boneDonors;bM+=BONE_MAX;}
     noFl+=st.noFloorDonors;
     if(st.hasBone&&!st.hasSkin)return;
+    const e=[];
     st.floors.forEach(f=>{
-      if(!f.type){empt++;fM+=FULL_MAX;return;}
+      if(!f.type){e.push(f.n);return;}
       if(f.type==='pass'){pU+=f.donors;pM+=PASS_MAX;}
       else{fU+=f.donors;fM+=FULL_MAX;}
     });
+    if(e.length)emptyFl.push({fid,e});
   });
-  return{bU,bM,pU,pM,fU,fM,empt,noFl};
+  if(pM===0)pM=PASS_MAX;   // 2ND PASS는 1층 50도너 기준
+  return{bU,bM,pU,pM,fU,fM,noFl,emptyFr,emptyFl};
+}
+function fmtFloors(a){
+  if(a.length>=3&&a[a.length-1]-a[0]===a.length-1)return a[0]+'~'+a[a.length-1]+'층';
+  return a.join(',')+'층';
 }
 
 function buildAll(){buildAlert();buildMetrics();buildFridgeSection();buildExpDist();buildHistory();buildChips();render();renderOut();}
@@ -500,10 +521,11 @@ function csCard(k,title,u,m){
   <div class="cs-bar"><div style="width:${p}%;background:${c[2]}"></div></div>
   <div class="cs-nums"><span>보관중 <b>${m?p+'%':'—'}</b></span><span>보관가능 <b>${m?a+'%':'—'}</b></span></div></div>`;
 }
-function remLine(label,u,m){
-  if(!m)return`<div><span class="k">${label}</span>해당 없음</div>`;
+function remLine(k,label,u,m,extra){
+  const c=CELL[k];
+  if(!m)return`<div class="rm-ln"><span class="rm-k"><i style="background:${c[2]}"></i>${label}</span><span class="rm-v">해당 없음</span></div>`;
   const p=Math.min(100,Math.round(u/m*100));
-  return`<div><span class="k">${label}</span>${p}% 보관중 · ${Math.max(0,m-u)}도너 보관가능</div>`;
+  return`<div class="rm-ln"><span class="rm-k"><i style="background:${c[2]}"></i>${label}</span><span class="rm-v"><b>${p}%</b> 보관중 · <b>${Math.max(0,m-u)}도너</b> 보관가능${extra?` <span class="rm-s">${extra}</span>`:""}</span></div>`;
 }
 function cellHtml(type,label,pct){
   const c=CELL[type];
@@ -512,13 +534,26 @@ function cellHtml(type,label,pct){
 
 function buildFridgeSection(){
   const T=totals();
+  const frTags=T.emptyFr.map(f=>`<span class="tg-fr">${f}</span>`).join("");
+  const flTxt=T.emptyFl.map(x=>`${x.fid} ${fmtFloors(x.e)}`).join(" · ");
+  const flCnt=T.emptyFl.reduce((s,x)=>s+x.e.length,0);
+  let emptyHtml="";
+  if(T.emptyFr.length)emptyHtml+=`<div class="rm-ln"><span class="rm-k">빈 냉동고 ${T.emptyFr.length}대</span><span class="rm-v">${frTags} → 뼈 <b>${T.emptyFr.length*BONE_MAX}도너</b> 또는 피부 보관 가능</span></div>`;
+  if(flCnt)emptyHtml+=`<div class="rm-ln"><span class="rm-k">빈 층 ${flCnt}개</span><span class="rm-v">${flTxt} → 피부 보관 가능 <span class="rm-s">(2ND PASS는 1층만 사용)</span></span></div>`;
+  if(!emptyHtml)emptyHtml=`<div class="rm-ln"><span class="rm-v">빈 공간 없음</span></div>`;
+
   document.getElementById("fridgeSummary").innerHTML=
     `<div class="cs-grid">${csCard('bone','뼈',T.bU,T.bM)}${csCard('pass','피부 2ND PASS',T.pU,T.pM)}${csCard('full','피부 Skin-Full',T.fU,T.fM)}</div>
-    <div class="cs-rem"><div class="h">비고</div>
-      ${remLine('뼈',T.bU,T.bM)}${remLine('2ND PASS',T.pU,T.pM)}${remLine('Skin-Full',T.fU,T.fM)}
-      <div><span class="k">빈 층</span>${T.empt}개 · 보관가능은 Skin-Full 층당 8도너 기준으로 계산 (2ND PASS로 쓰면 층당 50도너)</div>
-      <div><span class="k">참고</span>미사용 냉동고 ${UNUSED.join(", ")} 추후에 추가</div>
-      ${T.noFl>0?`<div><span class="k">층 미지정</span>피부 ${T.noFl}도너 (구역 번호가 없어 계산에서 제외)</div>`:""}
+    <div class="cs-rem"><div class="rm-t">비고</div>
+      <div class="rm-g">현재 사용 중인 공간 기준</div>
+      ${remLine('bone','뼈',T.bU,T.bM,'')}
+      ${remLine('pass','2ND PASS',T.pU,T.pM,`(1층 · 총 ${T.pM}도너)`)}
+      ${remLine('full','Skin-Full',T.fU,T.fM,'')}
+      <div class="rm-g">비어있음 · 용도 미지정</div>
+      <div class="rm-box">${emptyHtml}</div>
+      <div class="rm-g">참고</div>
+      <div class="rm-ln"><span class="rm-v">미사용 냉동고 ${UNUSED.join(", ")} 추후에 추가</span></div>
+      ${T.noFl>0?`<div class="rm-ln"><span class="rm-v">층 미지정 Skin-Full ${T.noFl}도너 (보관구역 번호가 없어 계산에서 제외)</span></div>`:""}
     </div>`;
 
   document.getElementById("fridgeList").innerHTML=FRIDGES.map(fid=>{
