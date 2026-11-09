@@ -69,6 +69,8 @@ body{font-family:'Segoe UI','Malgun Gothic',Arial,sans-serif;background:#f4f4f1;
 .rm-box{background:#fff;border:1px dashed #d6d6d0;border-radius:8px;padding:8px 12px}
 .rm-box .rm-ln{padding:3px 0}
 .tg-fr{display:inline-block;font-family:monospace;font-weight:700;font-size:12px;background:#e6f1fb;color:#185fa5;border-radius:6px;padding:1px 7px;margin-right:4px}
+.tg-s{background:#e1f5ee;color:#085041}
+.tg-m{background:#eeedfe;color:#3c3489}
 .fr2{display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px solid #eeeee9;border-radius:6px}
 .fr2.click{cursor:pointer}
 .fr2.click:hover{background:#f7f7f4}
@@ -363,9 +365,16 @@ const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbweW2NkNpUIz2cU0cFPhYu3jKf4z2yNTPTqxvxr82iCc5scwpwARLleO3_MKT1dygfI/exec";
 const PW=new URLSearchParams(window.location.search).get("pw")||"";
 const CAN_EDIT=PW!=="";
-const BONE_MAX=10,PASS_MAX=50,FULL_MAX=8;
+const BONE_MAX=10,PASS_TOTAL=50,FULL_MAX=8;
 const FRIDGES=["D-0801","D-0805","D-0806","D-0808","D-0809","D-0810","D-0812","D-0813","D-0814","D-0815","D-0817","D-0818"];
 const UNUSED=["D-0818"];
+
+// ★ 냉동고 용도 설정 (나중에 용도가 바뀌면 이 두 줄만 수정)
+// 뼈 보관 도너 수 (냉동고별)
+const BONE_CAP={"D-0801":10,"D-0805":10,"D-0806":10,"D-0808":10,"D-0809":10,"D-0810":10,"D-0814":10,"D-0815":5,"D-0817":5};
+// Skin-Full 보관 층 수 (냉동고별, 층당 8도너)
+const SKIN_FULL_FLOORS={"D-0812":4,"D-0813":3,"D-0815":2,"D-0817":2};
+
 const BONE_C="#378ADD",PASS_C="#EF9F27",FULL_C="#1D9E75";
 const CELL={bone:["#E6F1FB","#0C447C","#378ADD"],pass:["#FAEEDA","#633806","#EF9F27"],full:["#E1F5EE","#085041","#1D9E75"]};
 
@@ -387,6 +396,7 @@ function isBoneItem(r){return String(r["구분"]||"").includes("뼈");}
 function is2ndPass(r){const n=String(r["품목명"]||"").toUpperCase();return isSkinItem(r)&&(n.includes("2ND")||n.includes("PASS"));}
 function isSkinFull(r){return isSkinItem(r)&&!is2ndPass(r);}
 function donorOf(r){return String(r["기증자번호"]||"").trim()||String(r["조직번호"]||"").slice(0,6);}
+function frOf(r){return String(r["냉동고번호"]||"").trim();}
 function floorNo(r){const m=String(r["냉동고 보관 구역"]||"").match(/\d+/);const n=m?parseInt(m[0]):0;return(n>=1&&n<=4)?n:0;}
 // 2ND PASS는 구역 입력과 관계없이 항상 1층으로 계산
 function floorOf(r){return is2ndPass(r)?1:floorNo(r);}
@@ -421,11 +431,12 @@ function loadData(){
 // 냉동고별 통계 (모두 도너 기준)
 function fridgeStat(fid){
   if(_statCache[fid])return _statCache[fid];
-  const rows=STOCK.filter(r=>String(r["냉동고번호"]||"").trim()===fid);
+  const rows=STOCK.filter(r=>frOf(r)===fid);
   const boneRows=rows.filter(isBoneItem);
   const skinRows=rows.filter(isSkinItem);
   const boneDonors=new Set(boneRows.map(donorOf)).size;
-  const bonePct=Math.min(100,Math.round(boneDonors/BONE_MAX*100));
+  const bcap=BONE_CAP[fid]||BONE_MAX;
+  const bonePct=Math.min(100,Math.round(boneDonors/bcap*100));
   const floors=[1,2,3,4].map(n=>{
     const fr=skinRows.filter(r=>floorOf(r)===n);
     if(!fr.length)return{n,type:null,donors:0,pct:0};
@@ -433,10 +444,9 @@ function fridgeStat(fid){
     const fd=new Set(fr.filter(isSkinFull).map(donorOf)).size;
     const type=pd>=fd?'pass':'full';
     const donors=new Set(fr.map(donorOf)).size;
-    const cap=type==='pass'?PASS_MAX:FULL_MAX;
+    const cap=type==='pass'?PASS_TOTAL:FULL_MAX;
     return{n,type,donors,pct:Math.min(100,Math.round(donors/cap*100))};
   });
-  const noFloorDonors=new Set(skinRows.filter(r=>floorOf(r)===0).map(donorOf)).size;
   const passDonors=new Set(skinRows.filter(is2ndPass).map(donorOf)).size;
   const fullDonors=new Set(skinRows.filter(isSkinFull).map(donorOf)).size;
   const hasSkin=skinRows.length>0,hasBone=boneDonors>0;
@@ -444,35 +454,23 @@ function fridgeStat(fid){
   if(hasBone)cells.push(bonePct);
   if(hasSkin||!hasBone)floors.forEach(f=>cells.push(f.pct));
   const mainPct=cells.length?Math.round(cells.reduce((a,b)=>a+b,0)/cells.length):0;
-  const res={rows,boneDonors,bonePct,floors,noFloorDonors,passDonors,fullDonors,hasSkin,hasBone,mainPct,expired:rows.filter(r=>daysDiff(r["유효기간"])<0).length};
+  const res={rows,boneDonors,bonePct,floors,passDonors,fullDonors,hasSkin,hasBone,mainPct,expired:rows.filter(r=>daysDiff(r["유효기간"])<0).length};
   _statCache[fid]=res;
   return res;
 }
 
-// 전체 합산: 이미 사용 중인 공간만 계산 (빈 공간은 따로 표시)
+// 전체 합산: 냉동고 용도 설정 기준 (빈 공간도 보관가능에 포함)
 function totals(){
-  let bU=0,bM=0,pU=0,pM=0,fU=0,fM=0,noFl=0;
-  const emptyFr=[],emptyFl=[];
-  activeFridges().forEach(fid=>{
-    const st=fridgeStat(fid);
-    if(st.rows.length===0){emptyFr.push(fid);return;}
-    if(st.hasBone){bU+=st.boneDonors;bM+=BONE_MAX;}
-    noFl+=st.noFloorDonors;
-    if(st.hasBone&&!st.hasSkin)return;
-    const e=[];
-    st.floors.forEach(f=>{
-      if(!f.type){e.push(f.n);return;}
-      if(f.type==='pass'){pU+=f.donors;pM+=PASS_MAX;}
-      else{fU+=f.donors;fM+=FULL_MAX;}
-    });
-    if(e.length)emptyFl.push({fid,e});
+  const boneSet=new Set(),fullSet=new Set(),passSet=new Set();
+  STOCK.forEach(r=>{
+    const f=frOf(r);
+    if(isBoneItem(r)&&(f in BONE_CAP))boneSet.add(donorOf(r));
+    if(isSkinFull(r)&&(f in SKIN_FULL_FLOORS))fullSet.add(donorOf(r));
+    if(is2ndPass(r))passSet.add(donorOf(r));
   });
-  if(pM===0)pM=PASS_MAX;   // 2ND PASS는 1층 50도너 기준
-  return{bU,bM,pU,pM,fU,fM,noFl,emptyFr,emptyFl};
-}
-function fmtFloors(a){
-  if(a.length>=3&&a[a.length-1]-a[0]===a.length-1)return a[0]+'~'+a[a.length-1]+'층';
-  return a.join(',')+'층';
+  const bM=Object.values(BONE_CAP).reduce((a,b)=>a+b,0);
+  const fM=Object.values(SKIN_FULL_FLOORS).reduce((a,b)=>a+b,0)*FULL_MAX;
+  return{bU:boneSet.size,bM,pU:passSet.size,pM:PASS_TOTAL,fU:fullSet.size,fM};
 }
 
 function buildAll(){buildAlert();buildMetrics();buildFridgeSection();buildExpDist();buildHistory();buildChips();render();renderOut();}
@@ -531,29 +529,31 @@ function cellHtml(type,label,pct){
   const c=CELL[type];
   return`<div class="fl2"><b>${label}</b><span class="fp">${pct}%</span><div class="fb"><i style="width:${pct}%;background:${c[2]}"></i></div></div>`;
 }
+function useBlock(){
+  const tg=(f,c)=>`<span class="tg-fr ${c}">${f}</span>`;
+  const bo=Object.keys(BONE_CAP).filter(f=>!(f in SKIN_FULL_FLOORS));
+  const sk=Object.keys(SKIN_FULL_FLOORS).filter(f=>!(f in BONE_CAP));
+  const mx=Object.keys(BONE_CAP).filter(f=>f in SKIN_FULL_FLOORS);
+  let h="";
+  if(bo.length)h+=`<div class="rm-ln"><span class="rm-k">뼈</span><span class="rm-v">${bo.map(f=>tg(f,'')).join("")}</span></div>`;
+  if(sk.length)h+=`<div class="rm-ln"><span class="rm-k">피부</span><span class="rm-v">${sk.map(f=>tg(f,'tg-s')).join("")}</span></div>`;
+  if(mx.length)h+=`<div class="rm-ln"><span class="rm-k">뼈 + Skin-Full</span><span class="rm-v">${mx.map(f=>tg(f,'tg-m')).join("")} <span class="rm-s">${mx.map(f=>`${f} 뼈 ${BONE_CAP[f]}도너 · Skin-Full ${SKIN_FULL_FLOORS[f]}개 층`).join(" / ")}</span></span></div>`;
+  return h;
+}
 
 function buildFridgeSection(){
   const T=totals();
-  const frTags=T.emptyFr.map(f=>`<span class="tg-fr">${f}</span>`).join("");
-  const flTxt=T.emptyFl.map(x=>`${x.fid} ${fmtFloors(x.e)}`).join(" · ");
-  const flCnt=T.emptyFl.reduce((s,x)=>s+x.e.length,0);
-  let emptyHtml="";
-  if(T.emptyFr.length)emptyHtml+=`<div class="rm-ln"><span class="rm-k">빈 냉동고 ${T.emptyFr.length}대</span><span class="rm-v">${frTags} → 뼈 <b>${T.emptyFr.length*BONE_MAX}도너</b> 또는 피부 보관 가능</span></div>`;
-  if(flCnt)emptyHtml+=`<div class="rm-ln"><span class="rm-k">빈 층 ${flCnt}개</span><span class="rm-v">${flTxt} → 피부 보관 가능 <span class="rm-s">(2ND PASS는 1층만 사용)</span></span></div>`;
-  if(!emptyHtml)emptyHtml=`<div class="rm-ln"><span class="rm-v">빈 공간 없음</span></div>`;
-
   document.getElementById("fridgeSummary").innerHTML=
     `<div class="cs-grid">${csCard('bone','뼈',T.bU,T.bM)}${csCard('pass','피부 2ND PASS',T.pU,T.pM)}${csCard('full','피부 Skin-Full',T.fU,T.fM)}</div>
     <div class="cs-rem"><div class="rm-t">비고</div>
       <div class="rm-g">현재 사용 중인 공간 기준</div>
       ${remLine('bone','뼈',T.bU,T.bM,'')}
-      ${remLine('pass','2ND PASS',T.pU,T.pM,`(1층 · 총 ${T.pM}도너)`)}
+      ${remLine('pass','2ND PASS',T.pU,T.pM,'(1층 · 총 '+T.pM+'도너)')}
       ${remLine('full','Skin-Full',T.fU,T.fM,'')}
-      <div class="rm-g">비어있음 · 용도 미지정</div>
-      <div class="rm-box">${emptyHtml}</div>
+      <div class="rm-g">냉동고 용도</div>
+      <div class="rm-box">${useBlock()}</div>
       <div class="rm-g">참고</div>
       <div class="rm-ln"><span class="rm-v">미사용 냉동고 ${UNUSED.join(", ")} 추후에 추가</span></div>
-      ${T.noFl>0?`<div class="rm-ln"><span class="rm-v">층 미지정 Skin-Full ${T.noFl}도너 (보관구역 번호가 없어 계산에서 제외)</span></div>`:""}
     </div>`;
 
   document.getElementById("fridgeList").innerHTML=FRIDGES.map(fid=>{
@@ -679,7 +679,7 @@ function render(){
     if(code){const org=String(r["조직번호"]||"").trim(),donor=String(r["기증자번호"]||"").trim();
       if(!org.startsWith(code)&&donor!==code)return false;}
     if(selType.length&&!selType.includes(r["품목구분"]))return false;
-    if(selFridge.length&&!selFridge.includes(String(r["냉동고번호"]||"").trim()))return false;
+    if(selFridge.length&&!selFridge.includes(frOf(r)))return false;
     if(selExp.length&&!selExp.includes(expStatus(r["유효기간"]).label))return false;
     return true;});
   const groups=groupByDonor(filtered);_list=groups;
