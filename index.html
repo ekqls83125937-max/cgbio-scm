@@ -42,6 +42,20 @@ body{font-family:'Segoe UI','Malgun Gothic',Arial,sans-serif;background:#f4f4f1;
 .mc .v{font-size:23px;font-weight:600;line-height:1.25}
 .mc .s{font-size:11px;color:#9a9a94;margin-top:2px}
 .ic{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* 피부 4종류 재고 */
+.sk-hd{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.sk-t{font-size:15px;font-weight:700}
+.sk-n{font-size:13px;color:#6b6b66}
+.sk-n b{color:#1f1f1e}
+.sk-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.sk-c{border-radius:10px;padding:12px 14px}
+.sk-c .nm{font-size:13px;font-weight:700;line-height:1.4;min-height:36px}
+.sk-c .num{font-size:28px;font-weight:700;line-height:1.2;margin-top:4px}
+.sk-c .num span{font-size:13px;font-weight:600}
+.sk-c .cnt{font-size:13px;margin-top:2px}
+.sk-f{background:#e1f5ee;color:#085041}
+.sk-p{background:#faeeda;color:#633806}
+.sk-o{margin-top:8px;font-size:12px;color:#8a8a84}
 .cs-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px}
 .cs-card{background:#fff;border:1px solid #e3e3de;border-radius:12px;padding:12px 14px}
 .cs-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:6px}
@@ -232,6 +246,7 @@ textarea.multi:focus{border-color:#185fa5}
     <div id="pageStatus">
       <div id="alertBox"></div>
       <div class="metrics" id="metrics"></div>
+      <div class="card" id="skinTypes"></div>
       <div class="card">
         <div class="sec">조직번호 · 기증자번호 검색</div>
         <div class="search-wrap">
@@ -404,6 +419,25 @@ function pctColor(p){if(p>=95)return"#e24b4a";if(p>=80)return"#ef9f27";if(p>=60)
 function typeTag(r){return isBoneItem(r)?'<span class="pill p-bone">뼈</span>':is2ndPass(r)?'<span class="pill" style="background:#faeeda;color:#854f0b">2ND PASS</span>':'<span class="pill" style="background:#e1f5ee;color:#0f6e56">Skin-Full</span>';}
 function activeFridges(){return FRIDGES.filter(f=>!UNUSED.includes(f));}
 
+// ── 피부 4종류 구분 (대소문자·띄어쓰기·전각 괄호 무시) ──
+function normName(r){
+  return String(r["품목명"]||"").toUpperCase().replace(/\s+/g,"")
+    .replace(/（/g,"(").replace(/）/g,")").replace(/Ｃ/g,"C");
+}
+function parseAr(r){
+  const s=String(r["규격1"]||"")+" "+String(r["규격2"]||"");
+  const m=s.match(/AR\s*[:：]?\s*([\d,]+)/i);
+  return m?parseInt(m[1].replace(/,/g,"")):0;
+}
+function skinTypeKey(r){
+  const n=normName(r);
+  if(!(isSkinItem(r)||n.includes("SKIN")))return null;
+  const hasC=n.includes("(C)");
+  if(n.includes("2ND")||n.includes("PASS"))return hasC?"pass_c":"pass";
+  if(n.includes("FULL"))return hasC?"full_c":"full";
+  return "other";
+}
+
 function setTab(t){
   ['status','intake','out','move'].forEach(k=>{
     const id='tab'+(k==='status'?'Status':k==='intake'?'Intake':k==='out'?'Out':'Move');
@@ -473,7 +507,7 @@ function totals(){
   return{bU:boneSet.size,bM,pU:passSet.size,pM:PASS_TOTAL,fU:fullSet.size,fM};
 }
 
-function buildAll(){buildAlert();buildMetrics();buildFridgeSection();buildExpDist();buildHistory();buildChips();render();renderOut();}
+function buildAll(){buildAlert();buildMetrics();buildSkinTypes();buildFridgeSection();buildExpDist();buildHistory();buildChips();render();renderOut();}
 
 function buildAlert(){
   const used=activeFridges().filter(f=>fridgeStat(f).rows.length>0);
@@ -487,24 +521,47 @@ function buildAlert(){
   el.innerHTML=`<div class="alert warn"><div class="t">주의 필요 ${msgs.length}건</div>${msgs.map(m=>"· "+m).join("<br>")}</div>`;
 }
 
+// 상단 카드: 뼈 보관(기증자 수) + 평균 가동률
 function buildMetrics(){
-  const bone=STOCK.filter(isBoneItem),skin=STOCK.filter(isSkinItem);
-  const boneDonors=new Set(bone.map(donorOf)).size;
-  const skinDonors=new Set(skin.map(donorOf)).size;
+  const boneDonors=new Set(STOCK.filter(isBoneItem).map(donorOf)).size;
   const used=activeFridges().filter(f=>fridgeStat(f).rows.length>0);
   const full=used.filter(f=>fridgeStat(f).mainPct>=95).length;
   const avg=used.length?Math.round(used.reduce((s,f)=>s+fridgeStat(f).mainPct,0)/used.length):0;
   const boneSvg=`<svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="${BONE_C}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20c-2 0-3.5 1.5-3.5 3.5S4 27 6 27c.8 0 1.5-.3 2-.7.5.5 1.2.7 2 .7 2 0 3.5-1.5 3.5-3.5 0-1.3-.7-2.4-1.8-3L20.7 12c.6 1.1 1.7 1.8 3 1.8 2 0 3.5-1.5 3.5-3.5S25.7 6.8 23.7 6.8c-.8 0-1.5.3-2 .7-.5-.5-1.2-.7-2-.7-2 0-3.5 1.5-3.5 3.5 0 1.3.7 2.4 1.8 3L9 22.3c-.6-1.1-1.7-1.8-3-1.8z"/></svg>`;
-  const skinSvg=`<svg width="26" height="26" viewBox="0 0 32 32" fill="none" stroke="${PASS_C}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="24" height="20" rx="3"/><path d="M4 12h24M4 18h24"/><circle cx="10" cy="22" r="1"/><circle cx="16" cy="22" r="1"/><circle cx="22" cy="22" r="1"/></svg>`;
   document.getElementById("metrics").innerHTML=`
-  <div class="mc"><div class="ic" style="background:#f4f4f1"><span style="font-size:22px">📦</span></div>
-    <div><div class="l">현재 보관 재고</div><div class="v">${STOCK.length}<span style="font-size:13px;color:#9a9a94">건</span></div><div class="s">냉동고 ${used.length}대 사용 중</div></div></div>
   <div class="mc"><div class="ic" style="background:#e6f1fb">${boneSvg}</div>
-    <div><div class="l">뼈 보관</div><div class="v">${bone.length}<span style="font-size:13px;color:#9a9a94">건</span></div><div class="s">기증자 ${boneDonors}명</div></div></div>
-  <div class="mc"><div class="ic" style="background:#faeeda">${skinSvg}</div>
-    <div><div class="l">피부 보관</div><div class="v">${skin.length}<span style="font-size:13px;color:#9a9a94">건</span></div><div class="s">기증자 ${skinDonors}명</div></div></div>
+    <div><div class="l">뼈 보관</div><div class="v">${boneDonors}<span style="font-size:13px;color:#9a9a94">명</span></div><div class="s">기증자 기준</div></div></div>
   <div class="mc"><div class="ic" style="background:#fceaea"><span style="font-size:22px">🧊</span></div>
     <div><div class="l">평균 가동률</div><div class="v" style="color:${pctColor(avg)}">${avg}%</div><div class="s">${used.length}대 중 ${full}대 포화</div></div></div>`;
+}
+
+// 피부 4종류별 현재 보관 재고 (Ar 숫자 합계)
+function buildSkinTypes(){
+  const TYPES=[
+    {k:"full_c",name:"Skin-Full Thickness(C)",cls:"sk-f"},
+    {k:"full",name:"Skin-Full Thickness",cls:"sk-f"},
+    {k:"pass_c",name:"Skin-2ND PASS(C)",cls:"sk-p"},
+    {k:"pass",name:"Skin-2ND PASS",cls:"sk-p"}
+  ];
+  const agg={};TYPES.forEach(t=>agg[t.k]={ar:0,cnt:0});
+  const other={ar:0,cnt:0};
+  STOCK.forEach(r=>{
+    const k=skinTypeKey(r);
+    if(!k)return;
+    const a=parseAr(r);
+    if(k==="other"){other.ar+=a;other.cnt++;return;}
+    agg[k].ar+=a;agg[k].cnt++;
+  });
+  const totAr=TYPES.reduce((s,t)=>s+agg[t.k].ar,0)+other.ar;
+  const totCnt=TYPES.reduce((s,t)=>s+agg[t.k].cnt,0)+other.cnt;
+  document.getElementById("skinTypes").innerHTML=`
+    <div class="sk-hd"><span class="sk-t">피부 현재 보관 재고 (Ar 합계)</span>
+      <span class="sk-n">전체 합계 <b>${totAr.toLocaleString()}</b> · ${totCnt}건</span></div>
+    <div class="sk-g">${TYPES.map(t=>`
+      <div class="sk-c ${t.cls}"><div class="nm">${t.name}</div>
+        <div class="num">${agg[t.k].ar.toLocaleString()} <span>Ar</span></div>
+        <div class="cnt">${agg[t.k].cnt}건 보관 중</div></div>`).join("")}</div>
+    ${other.cnt>0?`<div class="sk-o">기타 피부 품목 ${other.cnt}건 (Ar ${other.ar.toLocaleString()}) — 4종류 이름과 달라 따로 집계 (합계에는 포함)</div>`:""}`;
 }
 
 function csCard(k,title,u,m){
