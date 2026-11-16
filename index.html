@@ -21,8 +21,8 @@ body{font-family:'Segoe UI','Malgun Gothic',Arial,sans-serif;background:#f4f4f1;
 .mode-tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
 .mode-view{background:#efefeb;color:#5f5e5a}
 .mode-edit{background:#eaf3de;color:#3b6d11}
-.tab-nav{background:#fff;border-bottom:1px solid #e3e3de;display:flex;padding:0 20px}
-.tabn{padding:12px 20px;border:none;background:none;color:#8a8a84;cursor:pointer;font-size:14px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab-nav{background:#fff;border-bottom:1px solid #e3e3de;display:flex;padding:0 20px;overflow-x:auto}
+.tabn{padding:12px 20px;border:none;background:none;color:#8a8a84;cursor:pointer;font-size:14px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
 .tabn.active{color:#185fa5;border-bottom-color:#185fa5}
 .wrap{max-width:1000px;margin:0 auto;padding:16px}
 .center-box{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;text-align:center}
@@ -42,6 +42,28 @@ body{font-family:'Segoe UI','Malgun Gothic',Arial,sans-serif;background:#f4f4f1;
 .mc .v{font-size:23px;font-weight:600;line-height:1.25}
 .mc .s{font-size:11px;color:#9a9a94;margin-top:2px}
 .ic{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* 일반 / 코티칼본 선택 */
+.seg{display:inline-flex;border:1px solid #d6d6d0;border-radius:10px;overflow:hidden;margin-bottom:12px}
+.seg button{padding:8px 16px;border:none;background:#fff;color:#6b6b66;font-size:13px;font-weight:700;cursor:pointer}
+.seg button.on{background:#185fa5;color:#fff}
+.seg button.on.cor{background:#7F77DD}
+/* 코티칼본 보관장 */
+.cab-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.cab-cell{background:#f4f4f1;border:1px solid #e3e3de;border-radius:10px;padding:8px 10px;min-height:68px;cursor:pointer;text-align:center}
+.cab-cell.has{background:#eeedfe;border-color:#cfcbf5}
+.cab-cell.hit{outline:3px solid #7F77DD}
+.cab-cell.sel{border-color:#3c3489;border-width:2px}
+.cab-id{font-size:13px;font-weight:700;color:#6b6b66}
+.cab-n{font-size:22px;font-weight:700;color:#3c3489;line-height:1.3}
+.cab-s{font-size:11px;color:#8a8a84}
+.cab-list{margin-top:12px;background:#f9f9f7;border:1px solid #eeeee9;border-radius:8px;padding:10px 12px;font-size:13px}
+.cab-list .h{font-weight:700;color:#3c3489;margin-bottom:6px}
+.cab-li{display:flex;gap:10px;align-items:center;padding:4px 0;border-bottom:1px dashed #e7e7e2}
+.cab-li:last-child{border-bottom:none}
+.cab-li .d{font-family:monospace;font-weight:700;color:#185fa5;width:70px}
+.cab-li .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#3d3d3a}
+.cab-li .c{color:#6b6b66}
+.p-cor{background:#eeedfe;color:#3c3489}
 /* 피부 4종류 재고 */
 .sk-hd{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .sk-t{font-size:15px;font-weight:700}
@@ -70,7 +92,6 @@ body{font-family:'Segoe UI','Malgun Gothic',Arial,sans-serif;background:#f4f4f1;
 .cs-bar div{height:100%}
 .cs-nums{display:flex;justify-content:space-between;font-size:14px;color:#6b6b66}
 .cs-nums b{font-weight:700;color:#1f1f1e}
-/* 비고 */
 .cs-rem{background:#f4f4f1;border-radius:10px;padding:12px 16px;font-size:14px;line-height:1.8;margin-bottom:14px;color:#1f1f1e}
 .rm-t{font-weight:700;font-size:15px;margin-bottom:2px}
 .rm-g{font-size:12px;font-weight:700;color:#6b6b66;margin:10px 0 3px}
@@ -239,6 +260,7 @@ textarea.multi:focus{border-color:#185fa5}
     <button class="tabn" id="tabIntake" onclick="setTab('intake')">입고</button>
     <button class="tabn" id="tabOut" onclick="setTab('out')">출고</button>
     <button class="tabn" id="tabMove" onclick="setTab('move')">이동</button>
+    <button class="tabn" id="tabCor" onclick="setTab('cor')">코티칼본</button>
   </div>
   <div class="wrap">
 
@@ -286,8 +308,12 @@ textarea.multi:focus{border-color:#185fa5}
       </div>
     </div>
 
-    <!-- 입고 탭 (여러 개 입력) -->
+    <!-- 입고 탭 -->
     <div id="pageIntake" style="display:none">
+      <div class="seg" id="intakeSeg">
+        <button class="on" id="inSegN" onclick="setIntakeScope('normal')">일반 (냉동고)</button>
+        <button id="inSegC" onclick="setIntakeScope('cortical')">코티칼본 (실온 보관장)</button>
+      </div>
       <div class="icard">
         <div class="istep"><span class="istep-num">1</span> 기증자번호 입력 <span style="font-weight:400;font-size:10px;margin-left:4px">(여러 개 가능)</span></div>
         <textarea class="multi" id="intakeInput" placeholder="여러 개 붙여넣기&#10;예: 262478&#10;262479&#10;262480" oninput="renderIntake()"></textarea>
@@ -298,23 +324,29 @@ textarea.multi:focus{border-color:#185fa5}
       </div>
       <div id="intakeResult"></div>
       <div class="icard" id="intakeFridgeCard" style="display:none">
-        <div class="istep"><span class="istep-num">2</span> 냉동고 선택</div>
+        <div class="istep"><span class="istep-num">2</span> <span id="intakeLbl2">냉동고 선택</span></div>
         <div class="chips" id="intakeFridgeChips"></div>
-        <div class="istep" style="margin-top:18px"><span class="istep-num">3</span> 보관 구역 선택 <span style="font-weight:400;font-size:10px">(선택)</span></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="intakeZoneChips">
-          <button class="intake-zone-chip on" onclick="selectIntakeZone(0,this)">선택 안함</button>
-          <button class="intake-zone-chip" onclick="selectIntakeZone(1,this)">1구역</button>
-          <button class="intake-zone-chip" onclick="selectIntakeZone(2,this)">2구역</button>
-          <button class="intake-zone-chip" onclick="selectIntakeZone(3,this)">3구역</button>
-          <button class="intake-zone-chip" onclick="selectIntakeZone(4,this)">4구역</button>
+        <div id="intakeZoneWrap">
+          <div class="istep" style="margin-top:18px"><span class="istep-num">3</span> 보관 구역 선택 <span style="font-weight:400;font-size:10px">(선택)</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="intakeZoneChips">
+            <button class="intake-zone-chip on" onclick="selectIntakeZone(0,this)">선택 안함</button>
+            <button class="intake-zone-chip" onclick="selectIntakeZone(1,this)">1구역</button>
+            <button class="intake-zone-chip" onclick="selectIntakeZone(2,this)">2구역</button>
+            <button class="intake-zone-chip" onclick="selectIntakeZone(3,this)">3구역</button>
+            <button class="intake-zone-chip" onclick="selectIntakeZone(4,this)">4구역</button>
+          </div>
+          <input type="hidden" id="iZone" value="">
         </div>
-        <input type="hidden" id="iZone" value="">
         <button class="btn-intake" id="btnIntakeConfirm" onclick="confirmIntake()" disabled>입고 확인</button>
       </div>
     </div>
 
     <!-- 출고 탭 -->
     <div id="pageOut" style="display:none">
+      <div class="seg">
+        <button class="on" id="outSegN" onclick="setOutScope('normal')">일반 (냉동고)</button>
+        <button id="outSegC" onclick="setOutScope('cortical')">코티칼본 (실온 보관장)</button>
+      </div>
       <div class="card">
         <div class="sec">기증자번호 여러 개 검색</div>
         <textarea class="multi" id="multiInput" placeholder="여러 개 붙여넣기&#10;예: 261191&#10;261192" oninput="renderOut()"></textarea>
@@ -329,7 +361,7 @@ textarea.multi:focus{border-color:#185fa5}
     <!-- 이동 탭 -->
     <div id="pageMove" style="display:none">
       <div class="card">
-        <div class="sec">기증자번호 여러 개 입력 <span style="font-weight:400;color:#9a9a94">· 이동할 조직을 검색하세요</span></div>
+        <div class="sec">기증자번호 여러 개 입력 <span style="font-weight:400;color:#9a9a94">· 냉동고 이동 (코티칼본 제외)</span></div>
         <textarea class="multi" id="moveInput" placeholder="여러 개 붙여넣기&#10;예: 261191&#10;261192" oninput="renderMove()"></textarea>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
           <button class="btn-copy" style="padding:6px 14px;font-size:12px" onclick="document.getElementById('moveInput').value='';renderMove()">초기화</button>
@@ -350,6 +382,25 @@ textarea.multi:focus{border-color:#185fa5}
         </div>
         <input type="hidden" id="moveZone" value="">
         <button class="btn-move" id="btnMoveConfirm" onclick="confirmMove()" disabled>이동 확인</button>
+      </div>
+    </div>
+
+    <!-- 코티칼본 탭 -->
+    <div id="pageCor" style="display:none">
+      <div class="card">
+        <div class="sec">코티칼본 위치 찾기 <span style="font-weight:400;color:#9a9a94">· 기증자번호 6자리 (여러 개 붙여넣기 가능)</span></div>
+        <textarea class="multi" id="corInput" style="height:80px" placeholder="예: 261045" oninput="renderCor()"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <button class="btn-copy" style="padding:6px 14px;font-size:12px" onclick="document.getElementById('corInput').value='';renderCor()">초기화</button>
+          <span id="corCount" style="font-size:11px;color:#9a9a94"></span>
+        </div>
+      </div>
+      <div id="corResult"></div>
+      <div class="card">
+        <div class="sec">실온 보관장 현황 <span style="font-weight:400;color:#9a9a94">· 칸을 누르면 들어 있는 기증자번호</span></div>
+        <div id="corSummary" style="font-size:13px;color:#6b6b66;margin-bottom:10px"></div>
+        <div class="cab-grid" id="corGrid"></div>
+        <div id="corCellList"></div>
       </div>
     </div>
 
@@ -377,7 +428,7 @@ textarea.multi:focus{border-color:#185fa5}
 const SHEET_ID="1I7PREqlH4XFSZDdIBM9mEvyE7nQRzU3SeDlomqkVox0";
 const GID="1504643023";
 const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
-const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbweW2NkNpUIz2cU0cFPhYu3jKf4z2yNTPTqxvxr82iCc5scwpwARLleO3_MKT1dygfI/exec";
+const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbweBSm-Ku1-oVsZ_OPqYHGfViEIa0VmJ8Z2ei17jo7b_rdk-RZnO_MU6WxQpUaKe2Ai/exec";
 const PW=new URLSearchParams(window.location.search).get("pw")||"";
 const CAN_EDIT=PW!=="";
 const BONE_MAX=10,PASS_TOTAL=50,FULL_MAX=8;
@@ -385,20 +436,22 @@ const FRIDGES=["D-0801","D-0805","D-0806","D-0808","D-0809","D-0810","D-0812","D
 const UNUSED=["D-0818"];
 
 // ★ 냉동고 용도 설정 (나중에 용도가 바뀌면 이 두 줄만 수정)
-// 뼈 보관 도너 수 (냉동고별)
 const BONE_CAP={"D-0801":10,"D-0805":10,"D-0806":10,"D-0808":10,"D-0809":10,"D-0810":10,"D-0814":10,"D-0815":5,"D-0817":5};
-// Skin-Full 보관 층 수 (냉동고별, 층당 8도너)
 const SKIN_FULL_FLOORS={"D-0812":4,"D-0813":3,"D-0815":2,"D-0817":2};
+
+// ★ 코티칼본 실온 보관장 칸 (A-1 ~ C-5)
+const COR_CELLS=[];["A","B","C"].forEach(r=>[1,2,3,4,5].forEach(c=>COR_CELLS.push(r+"-"+c)));
 
 const BONE_C="#378ADD",PASS_C="#EF9F27",FULL_C="#1D9E75";
 const CELL={bone:["#E6F1FB","#0C447C","#378ADD"],pass:["#FAEEDA","#633806","#EF9F27"],full:["#E1F5EE","#085041","#1D9E75"]};
 
-let ALL=[],STOCK=[],NOSTORED=[];
+let ALL=[],STOCK=[],NOSTORED=[],COR_STOCK=[],COR_NOSTORED=[];
 let selType=[],selFridge=[],selExp=[];
 const EXP_OPTS=["만료","90일이내","정상"];
-let filterOpen=false,openCard=null,releaseItem=null,bulkRelease=null,openFridge=null;
+let filterOpen=false,openCard=null,releaseItem=null,bulkRelease=null,bulkScope="normal",openFridge=null;
 let _list=[],_outList=[],_moveList=[],_intakeList=[];
 let moveSelectedFridge='',intakeSelectedFridge='';
+let intakeScope='normal',outScope='normal',corSel='';
 let checkedSet=new Set();
 let _statCache={};
 
@@ -410,13 +463,23 @@ function isSkinItem(r){return String(r["구분"]||"").includes("피부");}
 function isBoneItem(r){return String(r["구분"]||"").includes("뼈");}
 function is2ndPass(r){const n=String(r["품목명"]||"").toUpperCase();return isSkinItem(r)&&(n.includes("2ND")||n.includes("PASS"));}
 function isSkinFull(r){return isSkinItem(r)&&!is2ndPass(r);}
+// 코티칼본: 품목명에 Cortical / 코티칼 포함
+function isCortical(r){const n=String(r["품목명"]||"").toUpperCase().replace(/\s+/g,"");return n.includes("CORTICAL")||n.includes("코티칼");}
+// 보관장 위치 (A-1 ~ C-5): 보관 구역 또는 냉동고번호 칸에서 읽기
+function corLoc(r){
+  const s=(String(r["냉동고 보관 구역"]||"")+" "+String(r["냉동고번호"]||"")).toUpperCase();
+  const m=s.match(/([A-C])\s*[-–]?\s*([1-5])/);
+  return m?m[1]+"-"+m[2]:"";
+}
 function donorOf(r){return String(r["기증자번호"]||"").trim()||String(r["조직번호"]||"").slice(0,6);}
 function frOf(r){return String(r["냉동고번호"]||"").trim();}
 function floorNo(r){const m=String(r["냉동고 보관 구역"]||"").match(/\d+/);const n=m?parseInt(m[0]):0;return(n>=1&&n<=4)?n:0;}
-// 2ND PASS는 구역 입력과 관계없이 항상 1층으로 계산
 function floorOf(r){return is2ndPass(r)?1:floorNo(r);}
 function pctColor(p){if(p>=95)return"#e24b4a";if(p>=80)return"#ef9f27";if(p>=60)return"#BA7517";return"#639922";}
-function typeTag(r){return isBoneItem(r)?'<span class="pill p-bone">뼈</span>':is2ndPass(r)?'<span class="pill" style="background:#faeeda;color:#854f0b">2ND PASS</span>':'<span class="pill" style="background:#e1f5ee;color:#0f6e56">Skin-Full</span>';}
+function typeTag(r){
+  if(isCortical(r))return'<span class="pill p-cor">코티칼본</span>';
+  return isBoneItem(r)?'<span class="pill p-bone">뼈</span>':is2ndPass(r)?'<span class="pill" style="background:#faeeda;color:#854f0b">2ND PASS</span>':'<span class="pill" style="background:#e1f5ee;color:#0f6e56">Skin-Full</span>';
+}
 function activeFridges(){return FRIDGES.filter(f=>!UNUSED.includes(f));}
 
 // ── 피부 4종류 구분 (대소문자·띄어쓰기·전각 괄호 무시) ──
@@ -438,12 +501,11 @@ function skinTypeKey(r){
   return "other";
 }
 
+const TABS={status:['tabStatus','pageStatus'],intake:['tabIntake','pageIntake'],out:['tabOut','pageOut'],move:['tabMove','pageMove'],cor:['tabCor','pageCor']};
 function setTab(t){
-  ['status','intake','out','move'].forEach(k=>{
-    const id='tab'+(k==='status'?'Status':k==='intake'?'Intake':k==='out'?'Out':'Move');
-    const pid='page'+(k==='status'?'Status':k==='intake'?'Intake':k==='out'?'Out':'Move');
-    document.getElementById(id).classList.toggle('active',k===t);
-    document.getElementById(pid).style.display=(k===t?'':'none');
+  Object.keys(TABS).forEach(k=>{
+    document.getElementById(TABS[k][0]).classList.toggle('active',k===t);
+    document.getElementById(TABS[k][1]).style.display=(k===t?'':'none');
   });
 }
 
@@ -452,8 +514,12 @@ function loadData(){
   Papa.parse(CSV_URL+"&t="+Date.now(),{download:true,header:true,skipEmptyLines:true,
     complete:function(res){
       ALL=res.data;
-      STOCK=ALL.filter(r=>(!r["출고일자"]||r["출고일자"].trim()==="")&&r["냉동고번호"]&&r["냉동고번호"].trim()!=="");
-      NOSTORED=ALL.filter(r=>(!r["출고일자"]||r["출고일자"].trim()==="")&&(!r["냉동고번호"]||r["냉동고번호"].trim()===""));
+      const live=r=>(!r["출고일자"]||r["출고일자"].trim()==="");
+      const hasFr=r=>r["냉동고번호"]&&r["냉동고번호"].trim()!=="";
+      STOCK=ALL.filter(r=>live(r)&&hasFr(r)&&!isCortical(r));
+      NOSTORED=ALL.filter(r=>live(r)&&!hasFr(r)&&!isCortical(r));
+      COR_STOCK=ALL.filter(r=>live(r)&&isCortical(r)&&(hasFr(r)||corLoc(r)));
+      COR_NOSTORED=ALL.filter(r=>live(r)&&isCortical(r)&&!hasFr(r)&&!corLoc(r));
       _statCache={};
       document.getElementById("updated").textContent=new Date().toLocaleTimeString("ko-KR")+" 기준";
       buildAll();hide("loading");show("dash");
@@ -462,7 +528,6 @@ function loadData(){
   });
 }
 
-// 냉동고별 통계 (모두 도너 기준)
 function fridgeStat(fid){
   if(_statCache[fid])return _statCache[fid];
   const rows=STOCK.filter(r=>frOf(r)===fid);
@@ -493,7 +558,6 @@ function fridgeStat(fid){
   return res;
 }
 
-// 전체 합산: 냉동고 용도 설정 기준 (빈 공간도 보관가능에 포함)
 function totals(){
   const boneSet=new Set(),fullSet=new Set(),passSet=new Set();
   STOCK.forEach(r=>{
@@ -507,7 +571,7 @@ function totals(){
   return{bU:boneSet.size,bM,pU:passSet.size,pM:PASS_TOTAL,fU:fullSet.size,fM};
 }
 
-function buildAll(){buildAlert();buildMetrics();buildSkinTypes();buildFridgeSection();buildExpDist();buildHistory();buildChips();render();renderOut();}
+function buildAll(){buildAlert();buildMetrics();buildSkinTypes();buildFridgeSection();buildExpDist();buildHistory();buildChips();render();renderOut();renderCor();}
 
 function buildAlert(){
   const used=activeFridges().filter(f=>fridgeStat(f).rows.length>0);
@@ -521,7 +585,6 @@ function buildAlert(){
   el.innerHTML=`<div class="alert warn"><div class="t">주의 필요 ${msgs.length}건</div>${msgs.map(m=>"· "+m).join("<br>")}</div>`;
 }
 
-// 상단 카드: 뼈 보관(기증자 수) + 평균 가동률
 function buildMetrics(){
   const boneDonors=new Set(STOCK.filter(isBoneItem).map(donorOf)).size;
   const used=activeFridges().filter(f=>fridgeStat(f).rows.length>0);
@@ -535,7 +598,6 @@ function buildMetrics(){
     <div><div class="l">평균 가동률</div><div class="v" style="color:${pctColor(avg)}">${avg}%</div><div class="s">${used.length}대 중 ${full}대 포화</div></div></div>`;
 }
 
-// 피부 4종류별 현재 보관 재고 (Ar 숫자 합계)
 function buildSkinTypes(){
   const TYPES=[
     {k:"full_c",name:"Skin-Full Thickness(C)",cls:"sk-f"},
@@ -684,7 +746,7 @@ function buildHistory(){
   const out=ALL.filter(r=>r["출고일자"]&&r["출고일자"].trim()!=="");
   const map=new Map();
   out.forEach(r=>{
-    const k=String(r["기증자번호"]||"").trim()+"|"+r["출고일자"];
+    const k=String(r["기증자번호"]||"").trim()+"|"+r["출고일자"]+"|"+(isCortical(r)?"C":"N");
     if(!map.has(k))map.set(k,{donor:String(r["기증자번호"]||"").trim(),date:r["출고일자"],who:r["비고"]||"",rows:[]});
     map.get(k).rows.push(r);
   });
@@ -748,19 +810,28 @@ function render(){
     <div class="rlist">${groups.map((g,i)=>cardHtml(g,i,"rc")).join("")}</div></div>`;
 }
 
-// ── 입고 탭 (여러 개) ──
+// ── 입고 탭 (일반 / 코티칼본) ──
+function setIntakeScope(s){
+  intakeScope=s;
+  document.getElementById('inSegN').className=s==='normal'?'on':'';
+  document.getElementById('inSegC').className=s==='cortical'?'on cor':'';
+  document.getElementById('intakeInput').value='';
+  renderIntake();
+}
 function renderIntake(){
+  const cor=intakeScope==='cortical';
+  const pool=cor?COR_NOSTORED:NOSTORED;
   const codes=getMultiCodes("intakeInput");
   document.getElementById("intakeCount").textContent=codes.length?`${codes.length}개 코드 입력됨`:"";
   const box=document.getElementById("intakeResult");
   const fridgeCard=document.getElementById("intakeFridgeCard");
   if(!codes.length){
-    box.innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>입고 대상이 표시됩니다</div>`;
+    box.innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>${cor?'코티칼본 ':''}입고 대상이 표시됩니다</div>`;
     fridgeCard.style.display='none';_intakeList=[];return;
   }
   const found=[];const notFound=[];
   codes.forEach(code=>{
-    const matched=NOSTORED.filter(r=>{
+    const matched=pool.filter(r=>{
       const donor=String(r["기증자번호"]||"").trim(),org=String(r["조직번호"]||"").trim();
       return donor===code||org.startsWith(code);
     });
@@ -769,7 +840,7 @@ function renderIntake(){
   });
   const groups=groupByDonor(found);_intakeList=groups;
   if(!groups.length){
-    box.innerHTML=`<div class="card"><div class="empty">냉동고 미배정 건이 없습니다<br><span style="font-size:12px;color:#b4b2a9">이미 입고 완료됐거나 번호가 없어요</span></div></div>`;
+    box.innerHTML=`<div class="card"><div class="empty">${cor?'위치 미배정 코티칼본이':'냉동고 미배정 건이'} 없습니다<br><span style="font-size:12px;color:#b4b2a9">이미 입고 완료됐거나 번호가 없어요</span></div></div>`;
     fridgeCard.style.display='none';return;
   }
   let notFoundHtml='';
@@ -794,15 +865,26 @@ function renderIntake(){
 }
 
 function buildIntakeFridgeChips(){
+  const cor=intakeScope==='cortical';
   intakeSelectedFridge='';
   document.getElementById('btnIntakeConfirm').disabled=true;
+  document.getElementById('intakeLbl2').textContent=cor?'보관장 선택 (A-1 ~ C-5)':'냉동고 선택';
+  document.getElementById('intakeZoneWrap').style.display=cor?'none':'';
   document.querySelectorAll('#intakeZoneChips .intake-zone-chip').forEach(e=>e.classList.remove('on'));
   document.querySelector('#intakeZoneChips .intake-zone-chip').classList.add('on');
   document.getElementById('iZone').value='';
-  document.getElementById('intakeFridgeChips').innerHTML=activeFridges().map(f=>{
-    const st=fridgeStat(f),safe=f.replace(/[^a-zA-Z0-9]/g,'_');
-    return`<button class="fchip" id="ifchip_${safe}" onclick="selectIntakeFridge('${f}')">${f} <span style="font-weight:400;font-size:11px;color:${st.mainPct>=95?'#a32d2d':'#9a9a94'}">${fridgeChipSub(f)}</span></button>`;
-  }).join('');
+  if(cor){
+    const m=corCellMap();
+    document.getElementById('intakeFridgeChips').innerHTML=COR_CELLS.map(c=>{
+      const o=m.get(c),safe=c.replace(/[^a-zA-Z0-9]/g,'_');
+      return`<button class="fchip" id="ifchip_${safe}" onclick="selectIntakeFridge('${c}')">${c} <span style="font-weight:400;font-size:11px;color:#9a9a94">${o?o.donors.size+'명':'비어있음'}</span></button>`;
+    }).join('');
+  }else{
+    document.getElementById('intakeFridgeChips').innerHTML=activeFridges().map(f=>{
+      const st=fridgeStat(f),safe=f.replace(/[^a-zA-Z0-9]/g,'_');
+      return`<button class="fchip" id="ifchip_${safe}" onclick="selectIntakeFridge('${f}')">${f} <span style="font-weight:400;font-size:11px;color:${st.mainPct>=95?'#a32d2d':'#9a9a94'}">${fridgeChipSub(f)}</span></button>`;
+    }).join('');
+  }
 }
 function selectIntakeFridge(f){
   intakeSelectedFridge=f;
@@ -816,20 +898,23 @@ function selectIntakeZone(n,el){
 }
 async function confirmIntake(){
   if(!intakeSelectedFridge||!_intakeList.length)return;
-  const zone=document.getElementById('iZone').value.trim();
+  const cor=intakeScope==='cortical';
+  const fridge=cor?'실온':intakeSelectedFridge;
+  const zone=cor?intakeSelectedFridge:document.getElementById('iZone').value.trim();
+  const scope=cor?'cortical':'normal';
   const btn=document.getElementById('btnIntakeConfirm');
   btn.disabled=true;btn.textContent='처리 중...';
   let successCount=0,failCount=0;
   for(const group of _intakeList){
     const donor=String(group[0]["기증자번호"]||"").trim();
     try{
-      const url=`${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&fridge=${encodeURIComponent(intakeSelectedFridge)}&zone=${encodeURIComponent(zone)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
+      const url=`${APPS_SCRIPT_URL}?scope=${scope}&donorCode=${encodeURIComponent(donor)}&fridge=${encodeURIComponent(fridge)}&zone=${encodeURIComponent(zone)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
       const res=await fetch(url,{redirect:'follow'});const data=await res.json();
       if(data.success)successCount+=data.updated;else failCount++;
     }catch(err){failCount++;}
   }
   if(failCount===0){
-    alert(`✅ 입고 완료!\n냉동고: ${intakeSelectedFridge}${zone?"\n구역: "+zone:""}\n처리: ${successCount}건`);
+    alert(`✅ 입고 완료!\n${cor?"보관장: "+zone:"냉동고: "+fridge+(zone?"\n구역: "+zone:"")}\n처리: ${successCount}건`);
     document.getElementById('intakeInput').value='';
     document.getElementById('intakeCount').textContent='';
     document.getElementById('intakeResult').innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>입고 대상이 표시됩니다</div>`;
@@ -842,17 +927,31 @@ async function confirmIntake(){
   btn.disabled=false;btn.textContent='입고 확인';
 }
 
-// ── 출고 탭 ──
+// ── 출고 탭 (일반 / 코티칼본) ──
+function setOutScope(s){
+  outScope=s;
+  document.getElementById('outSegN').className=s==='normal'?'on':'';
+  document.getElementById('outSegC').className=s==='cortical'?'on cor':'';
+  document.getElementById('multiInput').value='';
+  renderOut();
+}
 function renderOut(){
+  const cor=outScope==='cortical';
+  const src=cor?COR_STOCK:STOCK;
   const codes=getMultiCodes("multiInput");
   document.getElementById("multiCount").textContent=codes.length?`${codes.length}개 코드 입력됨`:"";
   checkedSet=new Set();
   const box=document.getElementById("outResult");
-  if(!codes.length){box.innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>출고 대상이 표시됩니다</div>`;_outList=[];return;}
-  const filtered=STOCK.filter(r=>{const donor=String(r["기증자번호"]||"").trim(),org=String(r["조직번호"]||"").trim();
+  if(!codes.length){box.innerHTML=`<div class="hint-box">기증자번호를 입력하면<br>${cor?'코티칼본 ':''}출고 대상이 표시됩니다</div>`;_outList=[];return;}
+  const filtered=src.filter(r=>{const donor=String(r["기증자번호"]||"").trim(),org=String(r["조직번호"]||"").trim();
     return codes.some(c=>org.startsWith(c)||donor===c);});
   const groups=groupByDonor(filtered);
   groups.sort((a,b)=>{
+    if(cor){
+      const la=corLoc(a[0])||"~",lb=corLoc(b[0])||"~";
+      if(la!==lb)return la.localeCompare(lb,'ko',{numeric:true});
+      return String(a[0]["기증자번호"]).localeCompare(String(b[0]["기증자번호"]));
+    }
     const fa=String(a[0]["냉동고번호"]||"").trim(),fb=String(b[0]["냉동고번호"]||"").trim();
     if(fa!==fb)return fa.localeCompare(fb,'ko',{numeric:true});
     const za=String(a[0]["냉동고 보관 구역"]||"").trim(),zb=String(b[0]["냉동고 보관 구역"]||"").trim();
@@ -862,7 +961,7 @@ function renderOut(){
     return pa-pb;
   });
   _outList=groups;
-  if(!groups.length){box.innerHTML=`<div class="card"><div class="empty">보관 중인 조직이 없습니다</div></div>`;return;}
+  if(!groups.length){box.innerHTML=`<div class="card"><div class="empty">보관 중인 ${cor?'코티칼본이':'조직이'} 없습니다</div></div>`;return;}
   const editHtml=CAN_EDIT?`
     <div class="bulk-bar">
       <input type="checkbox" class="bulk-check" id="chkAll" onchange="toggleAll(this)">
@@ -877,16 +976,25 @@ function renderOut(){
     <div class="rlist">${groups.map((g,i)=>outCardHtml(g,i)).join("")}</div></div>`;
 }
 
+function groupLocText(group){
+  if(outScope==='cortical')return[...new Set(group.map(corLoc).filter(Boolean))].join(", ")||"위치 미지정";
+  const r=group[0],floor=String(r["냉동고 보관 구역"]||"").trim();
+  return(r["냉동고번호"]||"")+(floor?" · "+floor:"");
+}
 function outCardHtml(group,i){
+  const cor=outScope==='cortical';
   const r=group[0],ex=expStatus(r["유효기간"]),d=daysDiff(r["유효기간"]);
   const donor=String(r["기증자번호"]||"").trim()||String(r["조직번호"]||"").slice(0,6);
   const floor=String(r["냉동고 보관 구역"]||"").trim();
   const chkHtml=CAN_EDIT?`<input type="checkbox" class="out-check" id="chk${i}" onchange="toggleCheck(${i},this)" onclick="event.stopPropagation()">`:'';
+  const locHtml=cor
+    ?`<div class="locbadge"><div class="loclabel">보관장</div><div class="locval" style="color:#3c3489">${groupLocText(group)}</div></div>`
+    :(r["냉동고번호"]?`<div class="locbadge"><div class="loclabel">냉동고</div><div class="locval">${r["냉동고번호"]}</div>${floor?`<div class="locfloor">${floor}</div>`:""}</div>`:"");
   return`<div class="rcard" style="border-left-color:${ex.color}" id="oc${i}" onclick="toggleCard(${i},'oc')">
     ${chkHtml}
     <div class="codebadge">${donor||"—"}</div>
     <div class="iinfo"><div class="iname">${typeTag(r)} ${r["품목명"]||"—"}</div><div class="isub">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div></div>
-    ${r["냉동고번호"]?`<div class="locbadge"><div class="loclabel">냉동고</div><div class="locval">${r["냉동고번호"]}</div>${floor?`<div class="locfloor">${floor}</div>`:""}</div>`:""}
+    ${locHtml}
     ${group.length>1?`<div class="locbadge"><div class="loclabel">수량</div><div class="locval" style="color:#534AB7">${group.length}건</div></div>`:""}
     <div class="expbadge"><span class="pill" style="background:${ex.color}22;color:${ex.color}">${ex.label}</span>
       <span class="expdays">${d<0?Math.abs(d)+"일 초과":d+"일 남음"}</span><span class="expdate">${r["유효기간"]||""}</span></div>
@@ -923,16 +1031,16 @@ function openBulkRelease(){
   if(checkedSet.size===0)return;
   const selected=[...checkedSet].map(i=>_outList[i]);
   const today=todayStr();
-  bulkRelease=selected;
-  document.getElementById('modalTitle').textContent=`일괄 출고 처리`;
+  bulkRelease=selected;bulkScope=outScope;releaseItem=null;
+  document.getElementById('modalTitle').textContent=outScope==='cortical'?'코티칼본 일괄 출고 처리':'일괄 출고 처리';
   let bodyHtml=`<div class="mitem"><span>출고 대상</span><strong style="color:#e24b4a">${selected.length}명 (기증자)</strong></div>
     <div class="mitem"><span>출고일자</span><strong style="color:#3b6d11">${today}</strong></div>
     <div class="mitem"><span>비고</span><strong>이다빈</strong></div>
     <div style="margin-top:12px;max-height:200px;overflow-y:auto">`;
   selected.forEach(g=>{
-    const r=g[0],donor=String(r["기증자번호"]||"").trim(),floor=String(r["냉동고 보관 구역"]||"").trim();
+    const donor=String(g[0]["기증자번호"]||"").trim();
     bodyHtml+=`<div class="mitem"><span style="font-family:monospace;font-weight:700;color:#185fa5">${donor}</span>
-      <strong>${r["냉동고번호"]||""}${floor?" · "+floor:""} · ${g.length}건</strong></div>`;
+      <strong>${groupLocText(g)} · ${g.length}건</strong></div>`;
   });
   bodyHtml+='</div>';
   document.getElementById('modalBody').innerHTML=bodyHtml;
@@ -982,13 +1090,13 @@ function closeDetail(){openCard=null;document.getElementById("detail").classList
 function openRelease(i,e){
   e.stopPropagation();bulkRelease=null;
   const group=_outList[i],r=group[0];
-  releaseItem={donor:String(r["기증자번호"]||"").trim(),count:group.length};
-  const floor=String(r["냉동고 보관 구역"]||"").trim(),today=todayStr();
-  document.getElementById('modalTitle').textContent='출고 처리';
+  releaseItem={donor:String(r["기증자번호"]||"").trim(),count:group.length,scope:outScope};
+  const cor=outScope==='cortical',today=todayStr();
+  document.getElementById('modalTitle').textContent=cor?'코티칼본 출고 처리':'출고 처리';
   document.getElementById("modalBody").innerHTML=`
     <div class="mitem"><span>기증자번호</span><strong style="color:#185fa5;font-family:monospace;font-size:15px">${releaseItem.donor||"—"}</strong></div>
     <div class="mitem"><span>품목명</span><strong>${r["품목명"]||"—"}</strong></div>
-    <div class="mitem"><span>냉동고</span><strong style="color:#854f0b">${r["냉동고번호"]||"—"}${floor?" · "+floor:""}</strong></div>
+    <div class="mitem"><span>${cor?'보관장':'냉동고'}</span><strong style="color:#854f0b">${groupLocText(group)}</strong></div>
     <div class="mitem"><span>출고 수량</span><strong style="color:#534AB7">${group.length}건 (전체)</strong></div>
     <div class="mitem"><span>출고일자</span><strong style="color:#3b6d11">${today}</strong></div>
     <div class="mitem"><span>비고</span><strong>이다빈</strong></div>`;
@@ -1010,7 +1118,7 @@ async function confirmRelease(){
     for(const group of bulkRelease){
       const donor=String(group[0]["기증자번호"]||"").trim();
       try{
-        const url=`${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
+        const url=`${APPS_SCRIPT_URL}?scope=${bulkScope}&donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
         const res=await fetch(url,{redirect:'follow'});const data=await res.json();
         if(data.success)ok+=data.updated;else fail++;
       }catch(e){fail++;}
@@ -1020,16 +1128,16 @@ async function confirmRelease(){
     setTimeout(loadData,1500);return;
   }
   if(!releaseItem)return;
-  const donor=releaseItem.donor;
+  const donor=releaseItem.donor,scope=releaseItem.scope||"normal";
   try{
-    const url=`${APPS_SCRIPT_URL}?donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
+    const url=`${APPS_SCRIPT_URL}?scope=${scope}&donorCode=${encodeURIComponent(donor)}&date=${encodeURIComponent(today)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
     const res=await fetch(url,{redirect:'follow'});const data=await res.json();
     if(data.success){closeModal();alert(`출고 완료\n기증자번호: ${donor}\n출고일자: ${today}\n처리: ${data.updated}건`);setTimeout(loadData,1500);}
     else{alert("출고 실패: "+(data.error||"알 수 없는 오류"));btn.disabled=false;btn.textContent="출고 확인";}
   }catch(err){alert("연결 실패\n"+err.message);btn.disabled=false;btn.textContent="출고 확인";}
 }
 
-// ── 이동 탭 ──
+// ── 이동 탭 (냉동고 이동 · 코티칼본 제외) ──
 function renderMove(){
   const codes=getMultiCodes("moveInput");
   document.getElementById("moveCount").textContent=codes.length?`${codes.length}개 코드 입력됨`:"";
@@ -1081,7 +1189,7 @@ async function confirmMove(){
   for(const group of _moveList){
     const donor=String(group[0]["기증자번호"]||"").trim();
     try{
-      const url=`${APPS_SCRIPT_URL}?action=move&donorCode=${encodeURIComponent(donor)}&toFridge=${encodeURIComponent(moveSelectedFridge)}&toZone=${encodeURIComponent(toZone)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
+      const url=`${APPS_SCRIPT_URL}?action=move&scope=normal&donorCode=${encodeURIComponent(donor)}&toFridge=${encodeURIComponent(moveSelectedFridge)}&toZone=${encodeURIComponent(toZone)}&t=${Date.now()}&pw=${encodeURIComponent(PW)}`;
       const res=await fetch(url,{redirect:'follow'});const data=await res.json();
       if(data.success)successCount+=data.updated;else failCount++;
     }catch(err){failCount++;}
@@ -1096,6 +1204,76 @@ async function confirmMove(){
     _moveList=[];moveSelectedFridge='';setTimeout(loadData,1500);
   }else{alert(`이동 완료: ${successCount}건\n실패: ${failCount}건`);}
   btn.disabled=false;btn.textContent='이동 확인';
+}
+
+// ── 코티칼본 탭 ──
+function corCellMap(){
+  const m=new Map();
+  COR_STOCK.forEach(r=>{
+    const l=corLoc(r)||"위치 미지정";
+    if(!m.has(l))m.set(l,{donors:new Set(),cnt:0,rows:[]});
+    const o=m.get(l);o.donors.add(donorOf(r));o.cnt++;o.rows.push(r);
+  });
+  return m;
+}
+function renderCor(){
+  const codes=getMultiCodes("corInput");
+  document.getElementById("corCount").textContent=codes.length?`${codes.length}개 코드 입력됨`:"";
+  const box=document.getElementById("corResult");
+  const hits=new Set();
+  if(!codes.length){
+    box.innerHTML=`<div class="hint-box">기증자번호 6자리를 입력하면<br>보관장 위치가 표시됩니다</div>`;
+  }else{
+    const found=COR_STOCK.filter(r=>{const d=String(r["기증자번호"]||"").trim(),o=String(r["조직번호"]||"").trim();return codes.some(c=>d===c||o.startsWith(c));});
+    const groups=groupByDonor(found);
+    const foundCodes=new Set(found.map(r=>String(r["기증자번호"]||"").trim()));
+    const notFound=codes.filter(c=>!found.some(r=>String(r["기증자번호"]||"").trim()===c||String(r["조직번호"]||"").trim().startsWith(c)));
+    groups.forEach(g=>g.forEach(r=>{const l=corLoc(r);if(l)hits.add(l);}));
+    const nfHtml=notFound.length?`<div style="margin-top:8px;padding:8px 12px;background:#fceaea;border-radius:8px;font-size:12px;color:#a32d2d">⚠️ 보관 중인 코티칼본 없음: ${notFound.join(', ')}</div>`:"";
+    if(!groups.length){
+      box.innerHTML=`<div class="card"><div class="empty">보관 중인 코티칼본이 없습니다</div>${nfHtml}</div>`;
+    }else{
+      box.innerHTML=`<div class="card"><div class="sec"><strong style="color:#3c3489;font-size:14px">${groups.length}명</strong> 찾았어요</div>
+        <div class="rlist">${groups.map(g=>{
+          const r=g[0],ex=expStatus(r["유효기간"]),d=daysDiff(r["유효기간"]);
+          const donor=String(r["기증자번호"]||"").trim();
+          const locs=[...new Set(g.map(corLoc).filter(Boolean))].join(", ")||"위치 미지정";
+          return`<div class="rcard" style="border-left-color:#7F77DD;cursor:default">
+            <div class="codebadge">${donor}</div>
+            <div class="iinfo"><div class="iname">${typeTag(r)} ${r["품목명"]||"—"}</div><div class="isub">${r["품목구분"]||""} ${r["규격1"]?"· "+r["규격1"]:""}</div></div>
+            <div class="locbadge" style="background:#eeedfe"><div class="loclabel">보관장</div><div class="locval" style="color:#3c3489">${locs}</div></div>
+            <div class="locbadge"><div class="loclabel">수량</div><div class="locval" style="color:#534AB7">${g.length}건</div></div>
+            <div class="expbadge"><span class="pill" style="background:${ex.color}22;color:${ex.color}">${ex.label}</span>
+              <span class="expdays">${d<0?Math.abs(d)+"일 초과":d+"일 남음"}</span></div>
+            <div><button class="btn-copy" onclick="copyCode('${donor}',event)">📋</button></div>
+          </div>`;
+        }).join("")}</div>${nfHtml}</div>`;
+    }
+  }
+  buildCorGrid(hits);
+}
+function buildCorGrid(hits){
+  const m=corCellMap();
+  const totD=new Set(COR_STOCK.map(donorOf)).size;
+  document.getElementById("corSummary").innerHTML=`코티칼본 <b style="color:#1f1f1e">${totD}명</b> · ${COR_STOCK.length}건 보관 중 (실온)`
+    +(m.has("위치 미지정")?` · <span style="color:#a32d2d">위치 미지정 ${m.get("위치 미지정").donors.size}명</span>`:"");
+  document.getElementById("corGrid").innerHTML=COR_CELLS.map(c=>{
+    const o=m.get(c);
+    return`<div class="cab-cell${o?' has':''}${hits&&hits.has(c)?' hit':''}${corSel===c?' sel':''}" onclick="selectCorCell('${c}')">
+      <div class="cab-id">${c}</div><div class="cab-n">${o?o.donors.size:'·'}</div><div class="cab-s">${o?o.cnt+'건':'비어있음'}</div></div>`;
+  }).join("");
+  const box=document.getElementById("corCellList");
+  const key=corSel;
+  const o=key?m.get(key):null;
+  if(!key){box.innerHTML="";return;}
+  if(!o){box.innerHTML=`<div class="cab-list"><div class="h">${key}</div>비어있음</div>`;return;}
+  const byD=groupByDonor(o.rows);
+  box.innerHTML=`<div class="cab-list"><div class="h">${key} · ${byD.length}명 · ${o.cnt}건</div>
+    ${byD.map(g=>`<div class="cab-li"><span class="d">${String(g[0]["기증자번호"]||"").trim()}</span><span class="n">${g[0]["품목명"]||"—"}</span><span class="c">${g.length}건</span></div>`).join("")}</div>`;
+}
+function selectCorCell(c){
+  corSel=(corSel===c)?"":c;
+  renderCor();
 }
 
 function initMode(){
