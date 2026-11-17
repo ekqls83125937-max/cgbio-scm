@@ -489,8 +489,8 @@ function normName(r){
 }
 function parseAr(r){
   const s=String(r["규격1"]||"")+" "+String(r["규격2"]||"");
-  const m=s.match(/AR\s*[:：]?\s*([\d,]+)/i);
-  return m?parseInt(m[1].replace(/,/g,"")):0;
+  const m=s.match(/AR\s*[:：]?\s*([\d,]+(?:\.\d+)?)/i);
+  return m?parseFloat(m[1].replace(/,/g,"")):0;
 }
 function skinTypeKey(r){
   const n=normName(r);
@@ -618,12 +618,12 @@ function buildSkinTypes(){
   const totCnt=TYPES.reduce((s,t)=>s+agg[t.k].cnt,0)+other.cnt;
   document.getElementById("skinTypes").innerHTML=`
     <div class="sk-hd"><span class="sk-t">피부 현재 보관 재고 (Ar 합계)</span>
-      <span class="sk-n">전체 합계 <b>${totAr.toLocaleString()}</b> · ${totCnt}건</span></div>
+      <span class="sk-n">전체 합계 <b>${Math.round(totAr).toLocaleString()}</b> · ${totCnt}건</span></div>
     <div class="sk-g">${TYPES.map(t=>`
       <div class="sk-c ${t.cls}"><div class="nm">${t.name}</div>
-        <div class="num">${agg[t.k].ar.toLocaleString()} <span>Ar</span></div>
+        <div class="num">${Math.round(agg[t.k].ar).toLocaleString()} <span>Ar</span></div>
         <div class="cnt">${agg[t.k].cnt}건 보관 중</div></div>`).join("")}</div>
-    ${other.cnt>0?`<div class="sk-o">기타 피부 품목 ${other.cnt}건 (Ar ${other.ar.toLocaleString()}) — 4종류 이름과 달라 따로 집계 (합계에는 포함)</div>`:""}`;
+    ${other.cnt>0?`<div class="sk-o">기타 피부 품목 ${other.cnt}건 (Ar ${Math.round(other.ar).toLocaleString()}) — 4종류 이름과 달라 따로 집계 (합계에는 포함)</div>`:""}`;
 }
 
 function csCard(k,title,u,m){
